@@ -44,9 +44,13 @@ mega-motion works alone, and gets better with these (the `setup` skill checks fo
 - ffmpeg-skill (editing real footage, captions, platform exports): `npx ffmpeg-skill`
 - Tools: Node 18+, Python 3.10+, ffmpeg with libass, Playwright with Chromium; Blender for 3D work
 
+## Examples
+
+Examples made from one-line prompts are coming, each with its prompt, plan, QA results and the critic's review. See [examples/](examples/) for the gallery and [examples/field-tests.md](examples/field-tests.md) to run the same tests yourself.
+
 ## Status
 
-Early release (0.1.0). Routing and behaviour are covered by evals in `evals/` (`claude plugin eval .`). Numbers in the skills are labelled as defaults, measurements or judgments; reported values from outside sources say so.
+Early release (0.1.0). Routing and behaviour are covered by evals in `evals/` (`claude plugin eval .`); real-world quality by the field tests in `examples/`. Numbers in the skills are labelled as defaults, measurements or judgments; reported values from outside sources say so.
 
 ## Credits and licences
 
