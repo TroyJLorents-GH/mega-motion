@@ -1,0 +1,54 @@
+# mega-motion
+
+<!-- banner: add your image at assets/banner.png and uncomment the next line -->
+<!-- ![mega-motion](assets/banner.png) -->
+
+**The one motion plugin for Claude Code.** It plans motion like a director, builds it with the right tool, and checks it like a QA team: scroll-driven websites, three.js product heroes, interface motion, and 9:16 / 1:1 / 16:9 video reels made from code.
+
+It decides *what* should move and *why*, then hands library mechanics to the best specialist skills (official GSAP skills, HyperFrames, ffmpeg-skill) when you have them, and tells you how to get them when you don't.
+
+## Install
+
+In Claude Code:
+
+```
+/plugin marketplace add TroyJLorents-GH/mega-motion
+/plugin install mega-motion@mega-motion
+```
+
+Then start a new session and just describe what you want ("a scroll story for my headphones", "a 15-second reel for my coffee brand"). The first time, ask it to check your setup, or run `/mega-motion:setup`.
+
+## What's inside
+
+| Skill | Use it for |
+|---|---|
+| `direct` | Start here: brief, references, beat plan, defaults, approval gates. Asks one optional question, or runs on premium house defaults |
+| `setup` | Checks Node, Python, ffmpeg and its filters, Playwright, Blender and the companion skills; gives install commands; never installs without your yes |
+| `study` | Measures a reference site or video clean-room (timings, easings, scroll ranges) |
+| `scroll-story` | Pins, scrub, camera holds while text is read, smooth-scroll choices, iOS Safari fixes |
+| `web-3d` | three.js / React Three Fiber budgets, renderer choice, phone framing, materials, delivery format |
+| `blender-web` | Getting models, passes and camera paths out of Blender for the web |
+| `ui-motion` | Feedback timing, hover, loading, page transitions, Flip, drag, React rules |
+| `code-film` | Videos made from code: deterministic rendering, sound sync, per-platform formats and delivery |
+| `motion-qa` | Measurable checks before you call it done |
+
+Agents: `motion-critic` (reviews rendered frames in a fresh context, never sees the builder's notes), `qa-runner`, `reference-analyst`.
+
+Works with whatever model you run: no model is pinned.
+
+## Recommended companions
+
+mega-motion works alone, and gets better with these (the `setup` skill checks for them):
+
+- Official GSAP skills: `/plugin marketplace add greensock/gsap-skills` then `/plugin install gsap-skills@gsap-skills`
+- HyperFrames (HTML-to-video): `/plugin marketplace add heygen-com/hyperframes` then `/plugin install hyperframes@hyperframes`
+- ffmpeg-skill (editing real footage, captions, platform exports): `npx ffmpeg-skill`
+- Tools: Node 18+, Python 3.10+, ffmpeg with libass, Playwright with Chromium; Blender for 3D work
+
+## Status
+
+Early release (0.1.0). Routing and behaviour are covered by evals in `evals/` (`claude plugin eval .`). Numbers in the skills are labelled as defaults, measurements or judgments; reported values from outside sources say so.
+
+## Credits and licences
+
+mega-motion's own content is MIT. It routes to, and does not include, these projects: GSAP (GreenSock "no charge" licence, free for commercial use), three.js (MIT), HyperFrames (Apache-2.0), ffmpeg-skill by kajisho5 (MIT), Remotion (company licence above three employees). Ideas and figures cited from public articles and labs are attributed where they appear.

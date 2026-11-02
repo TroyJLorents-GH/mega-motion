@@ -1,0 +1,15 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "mega-motion",
+  "description": "The one motion plugin for Claude Code: scroll-driven websites, web 3D, interface motion and code-rendered video reels.",
+  "owner": { "name": "Troy Lorents", "url": "https://github.com/TroyJLorents-GH" },
+  "plugins": [
+    {
+      "name": "mega-motion",
+      "source": "./",
+      "description": "Motion direction, build routing and verification for scroll stories, three.js, interface motion and video reels, drawing on GSAP, three.js, HyperFrames and ffmpeg.",
+      "category": "design",
+      "tags": ["motion", "animation", "gsap", "threejs", "scroll", "video", "webgl", "reels"]
+    }
+  ]
+}

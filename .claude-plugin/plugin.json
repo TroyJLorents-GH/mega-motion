@@ -1,0 +1,11 @@
+{
+  "$schema": "https://anthropic.com/claude-code/plugin.schema.json",
+  "name": "mega-motion",
+  "version": "0.1.0",
+  "description": "The one motion plugin: direction, build routing and verification for scroll-driven websites, web 3D, interface motion and code-rendered video reels, drawing on GSAP, three.js, HyperFrames and ffmpeg.",
+  "author": {
+    "name": "Troy Lorents"
+  },
+  "license": "MIT",
+  "skills": "./skills/"
+}
