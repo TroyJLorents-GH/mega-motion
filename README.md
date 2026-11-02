@@ -1,7 +1,6 @@
 # mega-motion
 
-<!-- banner: add your image at assets/banner.png and uncomment the next line -->
-<!-- ![mega-motion](assets/banner.png) -->
+<p align="center"><img src="assets/banner.svg" alt="mega-motion" width="100%"></p>
 
 **The one motion plugin for Claude Code.** It plans motion like a director, builds it with the right tool, and checks it like a QA team: scroll-driven websites, three.js product heroes, interface motion, and 9:16 / 1:1 / 16:9 video reels made from code.
 
@@ -51,4 +50,4 @@ Early release (0.1.0). Routing and behaviour are covered by evals in `evals/` (`
 
 ## Credits and licences
 
-mega-motion's own content is MIT. It routes to, and does not include, these projects: GSAP (GreenSock "no charge" licence, free for commercial use), three.js (MIT), HyperFrames (Apache-2.0), ffmpeg-skill by kajisho5 (MIT), Remotion (company licence above three employees). Ideas and figures cited from public articles and labs are attributed where they appear.
+mega-motion's own content is MIT. It routes to, and does not include, these projects: GSAP (GreenSock "no charge" licence, free for commercial use), three.js (MIT), HyperFrames (Apache-2.0), ffmpeg-skill by kajisho5 (MIT), Remotion (company licence above three employees). Ideas and figures cited from public articles and labs are attributed where they appear. Banner lettering made with the [useknockout](https://useknockout.com/text-to-ascii) text-to-ASCII generator (Shadow Block, Ripple); it stops moving for visitors who prefer reduced motion.
