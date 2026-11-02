@@ -18,6 +18,7 @@ Mark each line **measured pass, measured fail, critic judgment, needs human evid
 - [ ] At most one overshoot per screen
 - [ ] Staggers follow reading order and overlap
 - [ ] Hero text holds for read time with nothing moving over it
+- [ ] Video: the frame never freezes; a slow push or moving secondary layer carries every read hold; `freeze_check.py` passes (only the end card stands still, at most 1 s)
 
 ## Fast tests anyone can run
 - [ ] One primary actor per beat: at most one element moves more than 10% of viewport width in the beat's main window; followers start later and travel less
@@ -32,7 +33,8 @@ Mark each line **measured pass, measured fail, critic judgment, needs human evid
 - [ ] Depth cues consistent: parallax ratios, contrast falloff, contact shadows
 - [ ] Camera moves are motivated by content and settle before text
 - [ ] Vector law holds across every section boundary
-- [ ] Every hold is intended: stillness for reading or inspection is correct; an unintended dead beat with nothing to read is a defect
+- [ ] Every hold is intended: on a page, stillness for reading or inspection is correct; in video the text holds but the frame keeps moving; an unintended dead beat with nothing to read is a defect
+- [ ] The hero of each beat fills at least 40% of the frame's width or height; no small object in a large empty frame
 
 ## 3D (if present)
 - [ ] One key light plus environment map; roughness contrast visible

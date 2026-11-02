@@ -26,8 +26,10 @@ Judge only what is in the pixels.
 4. TEST against the beat table: two heroes moving at once; text moving or partly transparent during
    its read time (words × 0.3 s + 0.5 s, converted to frames); a label not touching its part; a
    cursor, highlight or object over glyphs; a crossed vector at a cut with no occluder; text unreadable
-   at 360 px. Constant speed, a cut, a freeze or simultaneous motion is a defect only when it conflicts
-   with the approved intent; say which.
+   at 360 px. Constant speed, a cut or simultaneous motion is a defect only when it conflicts with the
+   approved intent; say which. In a video, a run of near-identical tiles is a blocker whatever the intent:
+   the frame froze, and only the final end card may stand still. Still cards joined by wipes are a
+   slideshow, and a hero filling less than 40% of the frame's width and height is a defect.
 5. CONFIRM. For each candidate, name the crop region; it is re-checked on a zoomed crop. Unconfirmed
    candidates are dropped.
 

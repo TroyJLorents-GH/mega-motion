@@ -96,6 +96,7 @@ Motion blur in 3D pieces: average several subframes over half a frame in linear 
 | `?t=2.5` URL freeze of any frame | exact frame inspection without a full render |
 | Onion skin of a move at 25% opacity | even spacing means constant speed (right for mechanical and scrubbed motion, wrong for an arrival); spacing tightening near the keys means the move eases into them |
 | Speed graph: hero x and scale per frame | straight lines are linear; corners are dead starts and stops |
+| Freeze check: `scripts/freeze_check.py` on the final MP4 | frozen stretches, a slideshow passing as a film. It fails any full-frame freeze over 0.5 s except an end card of at most 1 s, and more than 10% frozen in total. Run it before the critic; a fail goes back to the animator, not to delivery |
 
 ```bash
 # Frame numbers drawn after scaling (from timestamps, so they stay true after select); replace 24 with the film's fps.
@@ -179,7 +180,7 @@ Cropping is for real footage only. Code renders keep the rule that each format i
 | Cut to music | measure `scenes.py --beats`, then `cut.py --snap beats`; below its confidence it refuses: ask for the BPM instead of inventing a grid |
 | Talking-head silence | `silence.py talk.mp4 --list`, then `--speech-aware` (cuts only between sentences) |
 | B-roll | `broll.py talk.mp4 --insert product.mp4 --at 12 --duration 4` |
-| Title card or end slate from a still | `insert.py` (optional Ken Burns); hold a frame with `freeze.py --at T --hold 2` |
+| Title card or end slate from a still | `insert.py` (optional Ken Burns); hold a frame with `freeze.py --at T --hold 1` (keep held frames to the end card, at most 1 s) |
 | Whole edit as data | `render.py project.json` with `--dry-run`, `--cache DIR`, and `--export-timeline edit.fcpxml` for Final Cut, Resolve or Premiere |
 | Delivery report | `report.py --before raw.mov --after final.mp4 --platform reels -o report.html` |
 
@@ -212,7 +213,7 @@ Loudness elsewhere (README): podcast -16 LUFS / -1.5 dBTP, broadcast -23 LUFS. A
 
 **Render mode.** Set `window.__ready = true` only after fonts and any precompute (texture or SDF bakes) finish; the renderer waits for that flag, not page load. When opened with `?t=`, never start `requestAnimationFrame`; `renderAt(t)` is the only thing that draws. Pin three.js through an importmap and check which parameter names your pinned version reads (the lab hit an r160 `TextGeometry` `height` versus `depth` trap).
 
-**Minimal renderer.** A Playwright script opens the page by `pathToFileURL` (Windows-safe), waits for `networkidle` and `document.fonts.ready`, then for `i = 0..N-1` sets `t = i / fps`, calls `renderAt(t)`, pauses every `document.getAnimations()` entry at `t * 1000` ms, seeks the project's own GSAP timeline (invisible to `getAnimations()`), and screenshots. For 3D render on the real GPU and average several subframes over half a frame in linear light for 180-degree motion blur.
+**Minimal renderer.** A Playwright script creates its browser context with `reducedMotion: 'no-preference'` for the main film (a machine with system animations turned off otherwise renders the reduced-motion branch; render that branch on purpose as its own pass with `'reduce'`), opens the page by `pathToFileURL` (Windows-safe), waits for `networkidle` and `document.fonts.ready`, then for `i = 0..N-1` sets `t = i / fps`, calls `renderAt(t)`, pauses every `document.getAnimations()` entry at `t * 1000` ms, seeks the project's own GSAP timeline (invisible to `getAnimations()`), and screenshots. For 3D render on the real GPU and average several subframes over half a frame in linear light for 180-degree motion blur.
 
 **Springs as code.** Damping ratio = d / (2 sqrt(k m)): Remotion's default spring (m 1, d 10, k 100) is 0.5; react-spring's default (tension 170, friction 26) is about 1.0. Position and size may bounce; opacity and colour never do.
 

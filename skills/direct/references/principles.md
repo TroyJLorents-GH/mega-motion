@@ -53,7 +53,7 @@ Good choreography is about how elements relate. A card and its shadow are one ob
 
 **Follow-through and settle:** heavy elements settle after the main motion stops. A single 2-4% settle is enough; more becomes wobble.
 
-**The camera is a character.** In 3D and in scroll stories, treat the viewport as a camera with a personality: it moves for a reason, decelerates into readable positions, and never jitters. The camera is still while text is read.
+**The camera is a character.** In 3D and in scroll stories, treat the viewport as a camera with a personality: it moves for a reason, decelerates into readable positions, and never jitters. In scroll stories the camera is still while text is read; in timed video the camera brakes but the frame never freezes (see the settle rule in section 8).
 
 ### 6. Depth
 
@@ -87,7 +87,7 @@ Moves must be motivated by content: a dolly in because the next thing to read is
 
 Dolly, do not zoom, when you want the viewer to feel they moved. Zoom when you want them to feel they looked closer. They are different feelings and are often confused.
 
-Settle rule: the camera brakes to under 2% motion while any text is read. Stillness is an authored state: hold the camera completely still for reading or inspection unless movement reveals something. In timed media a slow push may keep a long hold alive; specify it in screen pixels and give it a reason, never add it by default. In scrubbed media the viewer owns time, so the settle is a scroll range, not a duration: the camera pose is exactly constant across the range in which the text is read (see section 9).
+Settle rule: the camera brakes to under 2% motion while any text is read. On a page, stillness is an authored state: hold the camera completely still for reading or inspection unless movement reveals something. In timed media (reels, films) a read hold is not a freeze: the text holds its position and stays fully opaque, while the frame keeps living through a slow push (1-3% scale over the hold) or a visibly moving secondary layer such as drifting light, a shifting gradient or a background shape. Grain alone does not count. Nothing in the frame stands fully still for more than 0.5 s except the final end card, which holds at most 1 s. A video made of still cards joined by wipes is a slideshow, not motion. In scrubbed media the viewer owns time, so the settle is a scroll range, not a duration: the camera pose is exactly constant across the range in which the text is read (see section 9).
 
 ### 9. Typography in motion
 

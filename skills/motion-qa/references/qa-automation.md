@@ -65,6 +65,8 @@ const result = await page.evaluate(() => window.__stopProbe());
 
 ## 6. Critic evidence for rendered video
 
+Gate first: run `skills/code-film/scripts/freeze_check.py out/anim.mp4 --json` and record its result in `qa/checks.json` as check `video-freeze`. It fails any full-frame freeze over 0.5 s except an end card of at most 1 s, and more than 10% frozen in total. A fail stops review: the film goes back to the animator, and the critic is not run on a film that froze.
+
 Fix the evidence before judging it:
 - Contact sheets carry burned-in frame numbers and cover the **whole** film (one sheet covers 12 tiles; render as many sheets as needed). Tiles at least 640 px wide so text is legible.
 

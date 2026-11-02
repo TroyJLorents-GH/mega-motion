@@ -13,12 +13,17 @@ The model writes a program that answers "what does the screen show at time t"; a
 4. Sound on the same clock; the picture works muted first.
 5. Every format is its own composition from the same timeline, never a crop.
 6. Render stills before the full film; deliver through `ffmpeg-skill` (`check.py`, `look.py`) when installed. HyperFrames and Remotion mechanics: their own skills and docs.
+7. The frame never freezes. A read hold keeps the text still, not the frame: a slow push or a visibly moving secondary layer carries every hold, and the hero of each beat fills at least 40% of the frame's width or height. Only the final end card may stand still, for at most 1 s.
+8. Render the main film with reduced motion explicitly off (Playwright `reducedMotion: 'no-preference'`), because some machines report reduced motion system-wide. Render the reduced-motion version as its own pass.
+9. Before calling the film done, run `python3 <this skill's folder>/scripts/freeze_check.py out/anim.mp4` (on Windows, `python` or `py` instead of `python3`). A fail means more motion is needed: fix the beats it names and re-render. Never loosen its limits to pass.
 
 ## Red flags
 
 - A render driven by a clock, timers or unseeded randomness
 - A vertical version made by cropping the wide master
 - Calling a film done because the export finished
+- Still cards joined by wipes or cuts: a slideshow, not a film
+- A small hero floating in a large empty frame
 - An invented product screen
 
 Defaults: `../../shared/defaults.md`. Failure modes: `../../shared/failure-modes.md`. Starting a new piece rather than fixing one: begin with the `direct` skill.
@@ -29,3 +34,4 @@ Defaults: `../../shared/defaults.md`. Failure modes: `../../shared/failure-modes
 - `references/film-principles.md`: beat grids, pre-rendered pipelines, real UI capture
 - `references/video-vocabulary.md`: video terms
 - `references/example-explainer.md`: worked example: 30-second explainer
+- `scripts/freeze_check.py`: fails a film that freezes (stdlib Python plus ffmpeg; `--json` for QA)
