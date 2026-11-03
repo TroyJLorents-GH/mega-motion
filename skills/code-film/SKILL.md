@@ -16,11 +16,11 @@ node <this skill's folder>/scripts/new_film.mjs <project folder> --template laun
 cd <project folder> && npm install
 ```
 
-Then put the user's words, colours and beat times in `film.json` and run `node studio/render.mjs stills` (contact sheet at every beat), adjust, and `node studio/render.mjs film` (score, MP4, freeze, determinism and safe-zone checks, contact sheet). Read `studio/README.md` for the page contract and every command. It runs on macOS, Windows and Linux with Node 18+; Python 3 adds the score and the freeze check; it uses Chrome or Edge when Playwright's own browser is missing.
+Then put the user's words, colours and beat times in `film.json` and run `node studio/render.mjs stills` (contact sheet at every beat), adjust, and `node studio/render.mjs film` (score, MP4, freeze, rhythm, determinism and safe-zone checks, contact sheet). Read `studio/README.md` for the page contract and every command. It runs on macOS, Windows and Linux with Node 18+; Python 3 adds the score and the freeze check; it uses Chrome or Edge when Playwright's own browser is missing.
 
 | Template | Use it for |
 |---|---|
-| `launch-reel` | 9:16 product or feature launch, about 15 s: hook written by accent wipes, a claim proved by motion (1x to 2x ring), product, facts on a progress rail, call to action with a light pass |
+| `launch-reel` | 9:16 product or feature launch, about 15 s: hook written by accent wipes, a claim proved by motion (a ring that laps 1x to 2x, or for drinks `"visual": "glass"`, a glass poured to 1x then 2x), product, optional facts on a progress rail, call to action with the product dropping onto the end card. Put a real cutout photo in `content.product.image` when the user has one; ask for it once on a product launch |
 
 Adapt the closest template before writing a composition from scratch. A new composition keeps the template's structure: `boot()` and `seek(t)` from `studio/kit.js`, one carrier element that travels through every beat, a living ground under every hold, and `window.EVENTS` for sound cues.
 

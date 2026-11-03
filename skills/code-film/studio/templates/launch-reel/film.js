@@ -3,6 +3,7 @@
 // the camera never stops, and the ground keeps drifting, so no read hold is ever a frozen frame.
 // Everything is a pure function of t. Edit film.json for words, colours and beat times; edit this file for motion.
 import {boot, clamp, ease, fitFont, lines, mix, noise, rand, reducedMotion, span, spring, tween} from './studio/kit.js';
+import {createGlass} from './glass.js';
 
 boot((film) => {
   const {width: W, height: H, duration: D, fps: FPS, content: C, palette: P} = film;
@@ -141,7 +142,7 @@ boot((film) => {
     b.style.height = `${ln.offsetHeight * 0.74}px`;
     return b;
   });
-  const hookStart = (i) => B.hook - 0.14 + i * 0.28;
+  const hookStart = (i) => B.hook - 0.36 + i * 0.28; // frame 0 already shows words: it is often the thumbnail
   hookLines.forEach((_, i) => cue(Math.max(0, hookStart(i)), 'swipe'));
   const hookExit = B.claim - 0.32;
   cue(hookExit, 'whoosh-up');
@@ -158,7 +159,7 @@ boot((film) => {
   const hookSize = parseFloat(hook.style.fontSize);
   const underline = {x: er.left - vr.left, y: er.bottom - vr.top - hookSize * 0.06, w: er.width, h: Math.max(12, hookSize * 0.07)};
 
-  // ---------------- beat 2: claim, proved by two laps of a ring ----------------
+  // ---------------- beat 2: claim, proved by motion: two laps of a ring, or a glass poured to 1x then 2x ----------------
   const sClaim = scene('s-claim');
   const R = Math.round(W * 0.31);
   const CY = Math.round(H * 0.41);
@@ -218,17 +219,69 @@ boot((film) => {
   label.style.fontSize = '66px';
   label.style.top = `${CY + R + 150}px`;
   const labelLines = [...label.querySelectorAll('.line')];
+  const GLASS = C.claim.visual === 'glass';
+  let glass = null;
+  let gBox = null;
+  let pourTop = 0;
+  let zoomX = CX;
+  let zoomY = CY;
+  const gTicks = [];
+  if (GLASS) {
+    // The drink proves the claim: the glass fills to the 1x line, keeps pouring, and stops at 2x.
+    ring1.style.display = ring2.style.display = ticks.style.display = 'none';
+    gBox = {w: Math.round(W * 0.42), h: Math.round(H * 0.34)};
+    gBox.x = Math.round(W * 0.81) - gBox.w;
+    gBox.y = Math.round(H * 0.25);
+    glass = createGlass(svg, {...gBox, ink: P.ink, accent: P.accent, id: 'claim', liquidTop: C.claim.liquidTop, liquidBottom: C.claim.liquidBottom});
+    pourTop = Math.round(H * 0.1);
+    zoomX = gBox.x + gBox.w / 2;
+    zoomY = glass.levelY(0.5);
+    for (const [lv, text] of [[0.45, `${C.claim.from}${C.claim.suffix}`], [0.9, `${C.claim.to}${C.claim.suffix}`]]) {
+      const yy = glass.levelY(lv);
+      const ln = document.createElementNS(NS, 'line');
+      Object.entries({x1: gBox.x - 46, y1: yy, x2: gBox.x - 8, y2: yy, stroke: P.ink, 'stroke-width': 3, 'stroke-opacity': 0.5}).forEach(([k, v]) => ln.setAttribute(k, v));
+      svg.appendChild(ln);
+      const lab = el(sClaim, 'abs mono', text);
+      lab.style.fontSize = '40px';
+      lab.style.left = `${gBox.x - 58}px`;
+      lab.style.top = `${yy - 58}px`;
+      gTicks.push({ln, lab, lv});
+    }
+    numBox.classList.remove('center');
+    numBox.style.left = `${ML}px`;
+    numBox.style.width = `${gBox.x - ML - 60}px`;
+    numBox.style.fontSize = '100px';
+    const nw = Math.max(numA.offsetWidth, numB.offsetWidth);
+    const ns = Math.min(330, (100 * (gBox.x - ML - 70)) / nw);
+    numBox.style.fontSize = `${ns}px`;
+    numBox.style.top = `${gBox.y + gBox.h * 0.42 - numBox.offsetHeight / 2}px`;
+    numB.style.left = '0px';
+    numB.style.top = `${numA.offsetTop}px`;
+    label.classList.remove('center');
+    label.style.left = `${ML}px`;
+    label.style.width = `${CW}px`;
+    label.style.top = `${gBox.y + gBox.h + 70}px`;
+  }
   const ringIn = B.claim + 0.15;
-  const lap1 = [B.claim + 0.25, B.claim + 0.95];
-  const lap2 = [B.claim + 1.0, B.claim + 1.6];
+  const lap1 = GLASS ? [B.claim + 0.4, B.claim + 1.3] : [B.claim + 0.25, B.claim + 0.95];
+  const lap2 = GLASS ? [B.claim + 1.45, B.claim + 2.05] : [B.claim + 1.0, B.claim + 1.6];
   const hit = lap2[1];
+  const dropAt = [hit + 0.9, hit + 1.7];
   const claimExit = B.product - 0.38;
   pulses.push([hit, 0.22]);
   bands.push([hit + 0.3, claimExit + 0.3]);
   cue(ringIn, 'ring');
-  for (let k = 1; k <= 12; k++) {
-    cue(lap1[0] + ((lap1[1] - lap1[0]) * k) / 12, 'tick');
-    cue(lap2[0] + ((lap2[1] - lap2[0]) * k) / 12, 'tick-hi');
+  if (GLASS) {
+    cue(lap1[0], 'pour');
+    cue(lap2[0], 'pour');
+    cue(hit + 0.04, 'clink');
+    for (const k of [0, 1, 2]) cue(lap1[1] + 0.25 + k * 0.2, 'clink');
+    cue(dropAt[0] + 0.5, 'drip');
+  } else {
+    for (let k = 1; k <= 12; k++) {
+      cue(lap1[0] + ((lap1[1] - lap1[0]) * k) / 12, 'tick');
+      cue(lap2[0] + ((lap2[1] - lap2[0]) * k) / 12, 'tick-hi');
+    }
   }
   cue(lap2[0], 'riser');
   cue(hit, 'impact');
@@ -237,13 +290,28 @@ boot((film) => {
 
   // ---------------- beat 3: product ----------------
   const sProd = scene('s-product');
+  let prodGlass = null;
+  let wash = null;
+  if (GLASS) {
+    // The zoom ends inside the drink: its dark amber body is the ground the name appears on, then it clears
+    // to a large glass bleeding off the bottom right, so the product stays on screen while it is named.
+    wash = el(sProd, 'abs');
+    Object.assign(wash.style, {inset: '0', background: `radial-gradient(120% 80% at 55% 45%, ${C.claim.liquidTop || '#7a3a12'} 0%, ${C.claim.liquidBottom || '#140803'} 70%)`});
+    const psvg = document.createElementNS(NS, 'svg');
+    psvg.setAttribute('class', 'rings');
+    psvg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+    psvg.setAttribute('width', W);
+    psvg.setAttribute('height', H);
+    sProd.appendChild(psvg);
+    prodGlass = createGlass(psvg, {x: Math.round(W * 0.42), y: Math.round(H * 0.58), w: Math.round(W * 0.8), h: Math.round(H * 0.62), ink: P.ink, accent: P.accent, id: 'prod', liquidTop: C.claim.liquidTop, liquidBottom: C.claim.liquidBottom});
+  }
   const kicker = el(sProd, 'abs mono', C.product.kicker);
   kicker.style.left = `${ML + 84}px`;
   kicker.style.fontSize = '34px';
   const name = lines(sProd, C.product.name, 'display abs');
   name.style.left = `${ML}px`;
   fitFont(name, CW, {max: 330});
-  const prodTop = Math.round(H * 0.46 - (name.offsetHeight + 140) / 2);
+  const prodTop = Math.round((GLASS ? H * 0.37 : H * 0.46) - (name.offsetHeight + 140) / 2);
   name.style.top = `${prodTop}px`;
   kicker.style.top = `${prodTop - 64}px`;
   const nameLines = [...name.querySelectorAll('.line')];
@@ -302,7 +370,28 @@ boot((film) => {
   const cta = lines(sCta, C.cta, 'display abs');
   cta.style.left = `${ML}px`;
   fitFont(cta, CW, {max: 380});
-  cta.style.top = `${Math.round(H * 0.47 - cta.offsetHeight / 2)}px`;
+  // A product on the end card: a supplied cutout photo (content.product.image), else the drawn glass when the claim uses one.
+  const endBox = {w: Math.round(W * 0.44), h: Math.round(H * 0.3)};
+  endBox.x = Math.round(W * 0.81) - endBox.w;
+  endBox.y = Math.round(H * 0.1);
+  let endProduct = null;
+  if (C.product.image) {
+    const img = document.createElement('img');
+    img.src = C.product.image;
+    Object.assign(img.style, {position: 'absolute', left: `${endBox.x}px`, top: `${endBox.y}px`, width: `${endBox.w}px`, height: `${endBox.h}px`, objectFit: 'contain'});
+    sCta.appendChild(img);
+    endProduct = {el: img, glass: null};
+  } else if (GLASS) {
+    const esvg = document.createElementNS(NS, 'svg');
+    esvg.setAttribute('class', 'rings');
+    esvg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+    esvg.setAttribute('width', W);
+    esvg.setAttribute('height', H);
+    sCta.appendChild(esvg);
+    endProduct = {el: esvg, glass: createGlass(esvg, {...endBox, ink: P.ink, accent: P.accent, id: 'end', liquidTop: C.claim.liquidTop, liquidBottom: C.claim.liquidBottom})};
+  }
+  if (endProduct) fitFont(cta, CW, {max: 230});
+  cta.style.top = `${Math.round((endProduct ? H * 0.545 : H * 0.47) - cta.offsetHeight / 2)}px`;
   const ctaLines = [...cta.querySelectorAll('.line')];
   const lastCta = ctaLines[ctaLines.length - 1].firstChild;
   const ctaSize = parseFloat(cta.style.fontSize);
@@ -324,6 +413,11 @@ boot((film) => {
   signoff.style.color = hex(P.ink, 0.6);
   signoff.style.top = `${parseFloat(brand.style.top) + 62}px`;
   const ctaIn = B.cta;
+  const productDrop = ctaIn + 1.5;
+  if (endProduct) {
+    cue(productDrop + 0.32, 'land');
+    if (endProduct.glass) cue(productDrop + 0.36, 'clink');
+  }
   bands.push([ctaIn + 1.2, D + 0.3]);
   cue(ctaIn + 0.05, 'land');
   cue(ctaIn + 0.5, 'chime');
@@ -335,15 +429,20 @@ boot((film) => {
   carrier.id = 'carrier';
   const railState = (u) => ({x: ML, y: railY, w: Math.max(1, CW * u), h: 6, r: 3});
   const markerState = {x: ML, y: kicker.offsetTop + 16, w: 60, h: 12, r: 6};
-  const dotState = {x: CX - 22, y: CY - 22, w: 44, h: 44, r: 22};
+  const dotState = GLASS ? {x: zoomX - 22, y: pourTop - 22, w: 44, h: 44, r: 22} : {x: CX - 22, y: CY - 22, w: 44, h: 44, r: 22};
   const lerpState = (a, b, u) => ({x: mix(a.x, b.x, u), y: mix(a.y, b.y, u), w: mix(a.w, b.w, u), h: mix(a.h, b.h, u), r: mix(a.r ?? 0, b.r ?? 0, u)});
   const carrierAt = (t) => {
     const ul = {...underline, r: 8};
     if (t < B.hook + 1.0) return {...ul, w: 0, o: 0};
     if (t < hookExit) return {...ul, w: underline.w * ease.enter(span(t, B.hook + 1.0, B.hook + 1.45)), o: 1};
-    if (t < ringIn) return {...lerpState(ul, dotState, ease.move(span(t, hookExit, ringIn))), o: RM ? 0 : 1};
+    const dotAtUl = {x: ul.x + ul.w / 2 - 22, y: ul.y + ul.h / 2 - 22, w: 44, h: 44, r: 22};
+    if (t < hookExit + 0.3) return {...lerpState(ul, dotAtUl, ease.inOut(span(t, hookExit, hookExit + 0.3))), o: 1};
+    const travelEnd = GLASS ? lap1[0] : ringIn;
+    if (t < travelEnd) return {...lerpState(dotAtUl, dotState, ease.move(span(t, hookExit + 0.3, travelEnd))), o: RM ? 0 : 1};
     // The dot becomes the ring: it shrinks away as the ring grows out of it, before the number appears.
-    if (t < ringIn + 0.15) return {...lerpState(dotState, {x: CX, y: CY, w: 0, h: 0, r: 0}, ease.exit(span(t, ringIn, ringIn + 0.15))), o: RM ? 0 : 1};
+    // The dot becomes the ring, or the head of the pour.
+    if (GLASS && t < lap1[0] + 0.1) return {...dotState, o: RM ? 0 : 1};
+    if (t < ringIn + 0.15) return {...lerpState(dotState, {x: dotState.x + 22, y: dotState.y + 22, w: 0, h: 0, r: 0}, ease.exit(span(t, ringIn, ringIn + 0.15))), o: RM || GLASS ? 0 : 1};
     if (t < prodIn + 0.25) return {...dotState, w: 0, h: 0, o: 0};
     if (t < prodExit) return {...markerState, w: markerState.w * ease.enter(span(t, prodIn + 0.25, prodIn + 0.6)), o: 1};
     if (!N) {
@@ -411,12 +510,33 @@ boot((film) => {
     show(sClaim, claimOn);
     if (claimOn) {
       const grow = ease.enter(span(t, ringIn, ringIn + 0.5));
-      const zoom = (tt) => 1 + 4.5 * ease.exit(span(tt, claimExit, claimExit + 0.42));
-      sClaim.style.transformOrigin = `${CX}px ${CY}px`;
+      const zoom = (tt) => (GLASS ? 1 + 9 * ease.inOut(span(tt, claimExit - 0.1, claimExit + 0.5)) : 1 + 4.5 * ease.exit(span(tt, claimExit, claimExit + 0.42)));
+      sClaim.style.transformOrigin = `${zoomX}px ${zoomY}px`;
       sClaim.style.transform = `scale(${S(zoom(t))})`;
-      sClaim.style.opacity = RM ? 1 - span(t, claimExit, claimExit + 0.35) : 1 - span(t, claimExit + 0.22, claimExit + 0.4);
+      sClaim.style.opacity = RM ? 1 - span(t, claimExit, claimExit + 0.35) : GLASS ? 1 : 1 - span(t, claimExit + 0.22, claimExit + 0.4);
       const zb = RM ? 0 : span(t, claimExit + 0.1, claimExit + 0.4);
       sClaim.style.filter = zb > 0 ? `blur(${10 * zb}px)` : 'none';
+      if (GLASS) {
+        const gin = RM ? span(t, ringIn, ringIn + 0.4) : ease.enter(span(t, ringIn, ringIn + 0.55));
+        glass.group.setAttribute('opacity', gin);
+        glass.group.setAttribute('transform', `translate(0 ${M((1 - gin) * 60)})`);
+        const f1 = RM ? (t >= lap1[0] ? 1 : 0) : ease.inOut(span(t, lap1[0], lap1[1]));
+        const f2 = RM ? (t >= hit ? 1 : 0) : ease.inOut(span(t, lap2[0], lap2[1]));
+        const pouring = !RM && ((t > lap1[0] && t < lap1[1]) || (t > lap2[0] && t < lap2[1]));
+        const lastStop = t >= lap2[1] ? lap2[1] : t >= lap1[1] ? lap1[1] : lap1[0];
+        const bob = t > hit && !RM ? -12 * Math.exp(-(t - hit) * 3.2) * Math.cos((t - hit) * 8) : 0;
+        glass.update({level: 0.45 * f1 + 0.45 * f2, pour: pouring ? 1 : 0, pourTop, t: RM ? 0 : t,
+          ripple: pouring ? 1 : RM ? 0 : Math.exp(-(t - lastStop) * 3.5), glow: 0.3 + 0.5 * (0.45 * f1 + 0.45 * f2),
+          iceBob: bob, drop: RM ? 0 : span(t, dropAt[0], dropAt[1]), iceIn: RM ? (t >= lap1[1] ? 1 : 0) : span(t, lap1[1] - 0.05, lap1[1] + 0.6), ground: 0.8});
+        gTicks.forEach(({ln, lab, lv}) => {
+          const on = ease.smooth(span(t, ringIn + 0.3, ringIn + 0.7));
+          const reached = 0.45 * f1 + 0.45 * f2 >= lv - 0.005;
+          ln.setAttribute('stroke', reached && lv > 0.5 ? P.accent : P.ink);
+          ln.setAttribute('stroke-opacity', on * (reached ? 0.9 : 0.4));
+          lab.style.opacity = on * (reached ? 1 : 0.45);
+          lab.style.color = reached && lv > 0.5 ? P.accent : P.ink;
+        });
+      }
       const r1 = mix(22, R, grow);
       ring1.setAttribute('r', RM ? R : r1);
       ring2.setAttribute('r', RM ? R + 36 : mix(22, R + 36, grow));
@@ -450,6 +570,14 @@ boot((film) => {
       sProd.style.transformOrigin = `${ML}px ${H * 0.46}px`;
       sProd.style.transform = `scale(${S(mix(0.8, 1, arrive))})`;
       sProd.style.opacity = span(t, prodIn, prodIn + 0.16);
+      if (prodGlass) {
+        wash.style.opacity = 1 - ease.inOut(span(t, prodIn + 0.2, prodIn + 1.0));
+        const rise = RM ? 1 : ease.enter(span(t, prodIn + 0.35, prodIn + 1.3));
+        const leave = ease.exit(span(t, prodExit, prodExit + 0.35));
+        prodGlass.group.setAttribute('opacity', 0.62 * (RM ? span(t, prodIn, prodIn + 0.5) : rise) * (1 - leave));
+        prodGlass.group.setAttribute('transform', `translate(0 ${M((1 - rise) * 260 + leave * 420)})`);
+        prodGlass.update({level: 0.9, t: RM ? 0 : t, ripple: 0.15, glow: 0.8, iceBob: RM ? 0 : 6 * Math.sin(t * 1.3), drop: RM ? 0 : span(t, prodIn + 1.4, prodIn + 2.4)});
+      }
       kicker.style.opacity = ease.smooth(span(t, prodIn + 0.3, prodIn + 0.6));
       kicker.style.transform = `translateX(${M((1 - ease.enter(span(t, prodIn + 0.3, prodIn + 0.8))) * -24)}px)`;
       nameLines.forEach((ln, i) => {
@@ -498,6 +626,16 @@ boot((film) => {
     show(sCta, ctaOn);
     if (ctaOn) {
       ctaLines.forEach((ln, i) => reveal(ln.firstChild, t, ctaIn + 0.05 + i * 0.1, 0.8));
+      if (endProduct) {
+        // The product drops into the end card on a spring: the last new thing on screen, then it settles.
+        const land = RM ? ease.smooth(span(t, productDrop, productDrop + 0.4)) : spring(t, productDrop, {zeta: 0.62, omega: 13});
+        endProduct.el.style.opacity = RM ? land : span(t, productDrop, productDrop + 0.12);
+        endProduct.el.style.transform = `translateY(${M((1 - land) * -420)}px)`;
+        if (endProduct.glass) {
+          const bob = t > productDrop + 0.3 && !RM ? -10 * Math.exp(-(t - productDrop - 0.3) * 3) * Math.cos((t - productDrop) * 9) : 0;
+          endProduct.glass.update({level: 0.9, t: RM ? 0 : t, ripple: RM ? 0 : Math.exp(-Math.max(0, t - productDrop - 0.3) * 3), glow: 0.75, iceBob: bob, drop: RM ? 0 : span(t, productDrop + 1.2, productDrop + 2.0), ground: span(t, productDrop + 0.2, productDrop + 0.45)});
+        }
+      }
       // The brand types on letter by letter, so the end card keeps moving while it is read.
       const typed = RM ? C.brand.length : Math.floor(C.brand.length * span(t, ctaIn + 0.85, ctaIn + 0.85 + 0.045 * C.brand.length));
       brand.textContent = C.brand.slice(0, typed);

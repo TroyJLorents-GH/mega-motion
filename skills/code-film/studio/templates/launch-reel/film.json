@@ -22,7 +22,8 @@
     "brand": "Ember Roast",
     "hook": [
       "Built for",
-      "the late shift."
+      "the late",
+      "shift."
     ],
     "claim": {
       "from": "1",
@@ -31,7 +32,8 @@
       "label": [
         "the caffeine of",
         "our cold brew"
-      ]
+      ],
+      "visual": "glass"
     },
     "product": {
       "kicker": "Introducing",
@@ -47,7 +49,7 @@
       "Friday."
     ],
     "signoff": "",
-    "hookEmphasis": "late shift."
+    "hookEmphasis": "shift."
   },
   "beats": {
     "hook": 0,

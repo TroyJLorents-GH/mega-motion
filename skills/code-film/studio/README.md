@@ -20,6 +20,7 @@ Needs: Node 18+ and ffmpeg on PATH. Python 3 is optional and adds the score and 
 |---|---|
 | `film.json` | Everything a non-coder changes: size, fps, duration, palette, the words, beat times, tempo and chords |
 | `index.html`, `film.js` | The composition: a pure function of time, drawn by `draw(t)` |
+| `glass.js` | (launch-reel) a drawn glass of a dark drink that pours, fills and settles; a category stand-in, never a brand's packaging |
 | `score.py` | The sound: cues placed on the events the composition reports |
 | `studio/render.mjs` | Preview, stills, contact sheets, the film, and the checks |
 | `studio/kit.js` | Motion kit: easings, closed-form springs, seeded noise, text fitting, live and render loop |
@@ -59,6 +60,7 @@ A composition calls `boot(setup)` from `studio/kit.js`. `setup(film)` builds the
 | Check | Pass when |
 |---|---|
 | Freeze | no full-frame freeze over 0.5 s except an end card of at most 1 s; under 10% frozen in total |
+| Rhythm | something visibly new (a reveal, cut or hit) at least every 2.5 s; grain and drift do not count, so a held card fails |
 | Determinism | three frames reached in two different orders look the same (identical, or PSNR at least 60 dB) |
 | Safe zone | no settled text inside the margins in `film.json` "safe" (default TikTok: top 10%, right 14%, bottom 22%); text in motion is exempt |
 

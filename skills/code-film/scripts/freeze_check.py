@@ -5,6 +5,10 @@ Runs ffmpeg's freezedetect on a video and fails when the whole frame stands stil
 --max-hold seconds anywhere except a final end card, when the end card holds longer than --end-hold,
 or when frozen time exceeds --max-share of the runtime. A film of still cards joined by wipes fails.
 
+It also measures rhythm: an "event" is a frame whose difference from the previous one is large (a cut, a
+reveal, a hit), and the film fails when more than --max-gap seconds pass without one. Grain and slow drift
+keep a frame from freezing but are not events, so a held card still fails the rhythm check.
+
 Usage: python3 freeze_check.py out/anim.mp4 [--json]
 Exit code 0 = pass, 1 = fail, 2 = could not run (ffmpeg or ffprobe missing, unreadable file).
 Stdlib only; needs ffmpeg and ffprobe on PATH. Works on macOS, Linux and Windows.
@@ -42,6 +46,26 @@ def freezes(path, noise, min_len, total):
     return spans
 
 
+def events(path, threshold):
+    """Times of frames whose mean difference from the previous frame (at 270 px wide, grey) exceeds threshold."""
+    err = subprocess.run(
+        ["ffmpeg", "-hide_banner", "-nostats", "-i", path, "-vf",
+         "scale=270:-2,format=gray,tblend=all_mode=difference,signalstats,metadata=print:key=lavfi.signalstats.YAVG",
+         "-an", "-f", "null", "-"],
+        capture_output=True, text=True, check=True,
+    ).stderr
+    out = []
+    t = None
+    for line in err.splitlines():
+        m = re.search(r"pts_time:([\d.]+)", line)
+        if m:
+            t = float(m.group(1))
+        m = re.search(r"YAVG=([\d.]+)", line)
+        if m and t is not None and float(m.group(1)) >= threshold:
+            out.append(t)
+    return out
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("video")
@@ -49,12 +73,15 @@ def main():
     ap.add_argument("--end-hold", type=float, default=1.0, help="longest frozen end card allowed, seconds")
     ap.add_argument("--max-share", type=float, default=0.10, help="largest share of runtime that may be frozen")
     ap.add_argument("--noise", type=float, default=0.001, help="freezedetect noise tolerance")
+    ap.add_argument("--max-gap", type=float, default=2.5, help="longest stretch without a visible event, seconds")
+    ap.add_argument("--event", type=float, default=1.5, help="frame difference that counts as an event")
     ap.add_argument("--json", action="store_true")
     a = ap.parse_args()
 
     try:
         total = duration(a.video)
         spans = freezes(a.video, a.noise, a.max_hold, total)
+        ev = events(a.video, a.event)
     except (OSError, subprocess.CalledProcessError, ValueError) as e:
         print(f"freeze_check: could not analyse {a.video}: {e}", file=sys.stderr)
         sys.exit(2)
@@ -68,13 +95,18 @@ def main():
     problems = [f"frame frozen {e - s:.2f}s from {s:.2f}s to {e:.2f}s (limit {a.max_hold}s mid-film)" for s, e in mid]
     if end > a.end_hold:
         problems.append(f"end card frozen {end:.2f}s (limit {a.end_hold}s)")
+    # Rhythm: gaps between events, from the start; the last second (end card) may rest.
+    marks = [0.0] + ev + [max(0.0, total - 1.0)]
+    gaps = [(marks[i], marks[i + 1]) for i in range(len(marks) - 1) if marks[i + 1] - marks[i] > a.max_gap]
+    for g0, g1 in gaps:
+        problems.append(f"nothing new happens for {g1 - g0:.1f}s from {g0:.1f}s to {g1:.1f}s (limit {a.max_gap}s): add a beat or shorten the hold")
     if share > a.max_share:
         problems.append(f"{share:.0%} of the runtime is frozen (limit {a.max_share:.0%})")
 
     result = {
         "video": a.video, "status": "measured fail" if problems else "measured pass",
         "duration_s": round(total, 3), "frozen_s": round(frozen, 3), "frozen_share": round(share, 3),
-        "end_hold_s": round(end, 3), "freezes": [[round(s, 3), round(e, 3)] for s, e in spans], "problems": problems,
+        "end_hold_s": round(end, 3), "longest_gap_s": round(max((b - a2 for a2, b in zip(marks, marks[1:])), default=0), 2), "freezes": [[round(s, 3), round(e, 3)] for s, e in spans], "problems": problems,
     }
     if a.json:
         print(json.dumps(result, indent=2))

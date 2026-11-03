@@ -52,6 +52,12 @@ def score(mix, tl):
             mix.put(t - 0.08, whoosh(0.5, 250, 5200, 0.85), 0.08)
         elif kind == "land":
             mix.put(t, thud(70, 0.09, 0.35), 0.09)
+        elif kind == "pour":
+            mix.put(t, airy(0.9, 300, 900, 0.7), 0.05)
+        elif kind == "clink":
+            mix.put(t, chime([root * 16, root * 16 * 1.5], 0.6, 0.18), 0.05)
+        elif kind == "drip":
+            mix.put(t, blip(root * 12, 0.15, 0.05), 0.02)
         elif kind == "type":
             mix.put(t, click(3000, 0.015), 0.02)
         elif kind == "click":
