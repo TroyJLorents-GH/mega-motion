@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>launch reel</title>
+<link rel="stylesheet" href="node_modules/@fontsource/inter-tight/600.css">
+<link rel="stylesheet" href="node_modules/@fontsource/inter-tight/800.css">
+<link rel="stylesheet" href="node_modules/@fontsource/jetbrains-mono/500.css">
+<style>
+  :root { --fit: 1; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: #000; overflow: hidden; }
+  #viewport { position: relative; width: var(--w); height: var(--h); overflow: hidden; background: var(--ground);
+    transform: scale(var(--fit)); transform-origin: 0 0; }
+  canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+  #grain { mix-blend-mode: overlay; opacity: 0.4; pointer-events: none; }
+  #camera, .scene { position: absolute; inset: 0; transform-origin: 50% 45%; }
+  .abs { position: absolute; }
+  .display { font-family: 'Inter Tight', sans-serif; font-weight: 800; letter-spacing: -0.035em; line-height: 0.9; color: var(--ink); }
+  .semi { font-family: 'Inter Tight', sans-serif; font-weight: 600; letter-spacing: -0.015em; line-height: 1.12; color: var(--ink); }
+  .mono { font-family: 'JetBrains Mono', monospace; font-weight: 500; text-transform: uppercase; letter-spacing: 0.14em; color: var(--ink); }
+  .line { overflow: hidden; padding: 0.04em 0.02em 0.1em; margin-bottom: -0.12em; }
+  .line-inner { display: inline-block; white-space: nowrap; }
+  .block, #carrier { position: absolute; background: var(--accent); transform-origin: 0 50%; }
+  .center { text-align: center; }
+  svg.rings { position: absolute; inset: 0; overflow: visible; }
+</style>
+</head>
+<body>
+<div id="viewport">
+  <canvas id="ground"></canvas>
+  <div id="camera"></div>
+  <canvas id="grain"></canvas>
+</div>
+<!-- Directional motion blur, one filter per strength, chosen per frame from the element's speed. -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs id="blur-defs"></defs>
+</svg>
+<script type="module" src="film.js"></script>
+</body>
+</html>

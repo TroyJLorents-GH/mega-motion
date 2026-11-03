@@ -4,3 +4,4 @@ node_modules/
 examples/**/frames/
 examples/**/renders/
 *.mov
+__pycache__/

@@ -7,6 +7,25 @@ description: Use when the output is a video file made from code (HTML and GSAP, 
 
 The model writes a program that answers "what does the screen show at time t"; a renderer records it.
 
+## Start from the studio, not from a blank file
+
+This skill ships a working harness and proven templates in `studio/`. Use them for every video unless the user names another framework (HyperFrames, Remotion):
+
+```
+node <this skill's folder>/scripts/new_film.mjs <project folder> --template launch-reel
+cd <project folder> && npm install
+```
+
+Then put the user's words, colours and beat times in `film.json` and run `node studio/render.mjs stills` (contact sheet at every beat), adjust, and `node studio/render.mjs film` (score, MP4, freeze, determinism and safe-zone checks, contact sheet). Read `studio/README.md` for the page contract and every command. It runs on macOS, Windows and Linux with Node 18+; Python 3 adds the score and the freeze check; it uses Chrome or Edge when Playwright's own browser is missing.
+
+| Template | Use it for |
+|---|---|
+| `launch-reel` | 9:16 product or feature launch, about 15 s: hook written by accent wipes, a claim proved by motion (1x to 2x ring), product, facts on a progress rail, call to action with a light pass |
+
+Adapt the closest template before writing a composition from scratch. A new composition keeps the template's structure: `boot()` and `seek(t)` from `studio/kit.js`, one carrier element that travels through every beat, a living ground under every hold, and `window.EVENTS` for sound cues.
+
+## Rules
+
 1. Render contract: every frame a pure function of t; no clock, timers or unseeded randomness; loops render frames 0 to N-1.
 2. Departments in order, each with a gate: director, art director, animator, render engineer, critic (the `motion-critic` agent).
 3. Story as states: hook, problem, reveal, proof, close; each beat has an entry state, an exit state and a reason.
@@ -15,7 +34,8 @@ The model writes a program that answers "what does the screen show at time t"; a
 6. Render stills before the full film; deliver through `ffmpeg-skill` (`check.py`, `look.py`) when installed. HyperFrames and Remotion mechanics: their own skills and docs.
 7. The frame never freezes. A read hold keeps the text still, not the frame: a slow push or a visibly moving secondary layer carries every hold, and the hero of each beat fills at least 40% of the frame's width or height. Only the final end card may stand still, for at most 1 s.
 8. Render the main film with reduced motion explicitly off (Playwright `reducedMotion: 'no-preference'`), because some machines report reduced motion system-wide. Render the reduced-motion version as its own pass.
-9. Before calling the film done, run `python3 <this skill's folder>/scripts/freeze_check.py out/anim.mp4` (on Windows, `python` or `py` instead of `python3`). A fail means more motion is needed: fix the beats it names and re-render. Never loosen its limits to pass.
+9. Before calling the film done, the freeze, determinism and safe-zone checks must pass: `node studio/render.mjs film` runs both and writes `out/review/checks.json`. Outside the studio, run `python3 <this skill's folder>/scripts/freeze_check.py out/anim.mp4` (on Windows, `python` or `py`). A freeze fail means more motion is needed: fix the beats it names and re-render. Never loosen a limit to pass.
+10. Then the `motion-critic` agent reviews `out/review/contact.png` plus 12-frame strips around each transition (`node studio/render.mjs stills every:0.04 --from A --to B --out out/review/strip-NAME.png`), with the brief's one sentence and the beat table, never your description.
 
 ## Red flags
 
@@ -35,3 +55,5 @@ Defaults: `../../shared/defaults.md`. Failure modes: `../../shared/failure-modes
 - `references/video-vocabulary.md`: video terms
 - `references/example-explainer.md`: worked example: 30-second explainer
 - `scripts/freeze_check.py`: fails a film that freezes (stdlib Python plus ffmpeg; `--json` for QA)
+- `scripts/new_film.mjs`: creates a film project from the studio harness and a template
+- `studio/README.md`: the harness: page contract, commands, checks, sound, credits

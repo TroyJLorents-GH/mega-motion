@@ -1,0 +1,67 @@
+{
+  "title": "launch-reel",
+  "template": "launch-reel",
+  "width": 1080,
+  "height": 1920,
+  "fps": 30,
+  "duration": 15,
+  "safe": {
+    "top": 0.1,
+    "right": 0.14,
+    "bottom": 0.22,
+    "left": 0.05,
+    "platform": "TikTok (also covers Reels)"
+  },
+  "palette": {
+    "ground": "#0B0B0D",
+    "ink": "#F2F0EA",
+    "accent": "#FF5A1F",
+    "muted": "#8A8A8E"
+  },
+  "content": {
+    "brand": "Ember Roast",
+    "hook": [
+      "Built for",
+      "the late shift."
+    ],
+    "claim": {
+      "from": "1",
+      "to": "2",
+      "suffix": "×",
+      "label": [
+        "the caffeine of",
+        "our cold brew"
+      ]
+    },
+    "product": {
+      "kicker": "Introducing",
+      "name": [
+        "Night",
+        "Shift"
+      ],
+      "sub": "Cold brew by Ember Roast."
+    },
+    "facts": [],
+    "cta": [
+      "Out",
+      "Friday."
+    ],
+    "signoff": "",
+    "hookEmphasis": "late shift."
+  },
+  "beats": {
+    "hook": 0,
+    "claim": 3.2,
+    "product": 8.2,
+    "cta": 11.6
+  },
+  "sound": {
+    "bpm": 104,
+    "chords": [
+      "Dm9:D3 F3 A3 C4 E4/D2",
+      "Bbmaj7:Bb2 D3 F3 A3/Bb1",
+      "Fmaj7:F3 A3 C4 E4/F2",
+      "C6:C3 E3 G3 A3/C2"
+    ]
+  }
+}
