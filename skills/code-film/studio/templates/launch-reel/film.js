@@ -296,7 +296,7 @@ boot((film) => {
     // The zoom ends inside the drink: its dark amber body is the ground the name appears on, then it clears
     // to a large glass bleeding off the bottom right, so the product stays on screen while it is named.
     wash = el(sProd, 'abs');
-    Object.assign(wash.style, {inset: '0', background: `radial-gradient(120% 80% at 55% 45%, ${C.claim.liquidTop || '#7a3a12'} 0%, ${C.claim.liquidBottom || '#140803'} 70%)`});
+    Object.assign(wash.style, {inset: '-30%', background: `radial-gradient(120% 80% at 55% 45%, ${C.claim.liquidTop || '#7a3a12'} 0%, ${C.claim.liquidBottom || '#140803'} 70%)`});
     const psvg = document.createElementNS(NS, 'svg');
     psvg.setAttribute('class', 'rings');
     psvg.setAttribute('viewBox', `0 0 ${W} ${H}`);
@@ -358,7 +358,7 @@ boot((film) => {
   const factsEnd = B.cta - 0.1;
   const factWin = N ? (factsEnd - factsIn) / N : 0;
   if (N) bands.push([factsIn + 0.3, factsEnd + 0.2]);
-  for (let i = 0; i < C.brand.length; i++) cue(B.cta + 0.85 + 0.045 * i, 'type');
+  for (let i = 0; i < (C.product.name ? C.product.name.join(' ').length + 3 : 0) + C.brand.length; i++) cue(B.cta + 0.85 + 0.045 * i, 'type');
   for (let i = 0; i < N; i++) {
     cue(factsIn + i * factWin, 'whoosh-right');
     cue(factsIn + i * factWin + 0.2, 'click');
@@ -402,7 +402,9 @@ boot((film) => {
   // Below the descenders (the y of "Friday" hangs about 0.22 em under the baseline), never through them.
   const ctaUnder = {x: ML, y: cr.bottom - vr2.top + ctaSize * 0.08, w: lastCta.offsetWidth, h: Math.max(14, ctaSize * 0.055)};
   const brand = el(sCta, 'abs mono');
-  brand.textContent = C.brand;
+  // The end card is the frame that loops and gets screenshotted: it carries product, date and brand.
+  const brandLine = C.product.name ? `${C.product.name.join(' ')} · ${C.brand}` : C.brand;
+  brand.textContent = brandLine;
   brand.style.left = `${ML}px`;
   brand.style.fontSize = '36px';
   brand.style.letterSpacing = '0.22em';
@@ -637,8 +639,8 @@ boot((film) => {
         }
       }
       // The brand types on letter by letter, so the end card keeps moving while it is read.
-      const typed = RM ? C.brand.length : Math.floor(C.brand.length * span(t, ctaIn + 0.85, ctaIn + 0.85 + 0.045 * C.brand.length));
-      brand.textContent = C.brand.slice(0, typed);
+      const typed = RM ? brandLine.length : Math.floor(brandLine.length * span(t, ctaIn + 0.85, ctaIn + 0.85 + 0.045 * brandLine.length));
+      brand.textContent = brandLine.slice(0, typed);
       brand.style.opacity = RM ? ease.smooth(span(t, ctaIn + 0.85, ctaIn + 1.3)) : 1;
       reveal(signoff, t, ctaIn + 1.05, 0.6, 0.4);
     }

@@ -43,7 +43,7 @@ export function createGlass(svg, o) {
   grad(`${id}-ice`, [[0, '#ffffff', 0.55], [1, '#ffffff', 0.12]]);
   // Light passing through the thin edges of the drink: amber at the walls, deep in the middle.
   grad(`${id}-vol`, [[0, '#e08a3c', 0.55], [0.16, '#c06a2a', 0.18], [0.5, '#000000', 0], [0.84, '#c06a2a', 0.14], [1, '#e08a3c', 0.42]], 1, 0);
-  grad(`${id}-crema`, [[0, '#f0b27a', 0.95], [0.35, '#b8692e', 0.85], [1, '#6a3412', 0]]);
+  grad(`${id}-crema`, [[0, '#f0b27a', 0.95], [0.22, '#b8692e', 0.85], [0.45, '#2a1206', 0.55], [1, '#2a1206', 0]]);
   const rg = node(defs, 'radialGradient', {id: `${id}-glow`, cx: 0.5, cy: 0.55, r: 0.5});
   node(rg, 'stop', {offset: 0, 'stop-color': accent, 'stop-opacity': 0.55});
   node(rg, 'stop', {offset: 0.6, 'stop-color': accent, 'stop-opacity': 0.12});
@@ -72,7 +72,10 @@ export function createGlass(svg, o) {
   const ice = [0, 1, 2].map((i) => {
     const s = w * [0.25, 0.19, 0.15][i];
     const g = node(group, 'g'); // outside the clip, so a cube is visible while it falls in
-    node(g, 'rect', {x: -s / 2, y: -s / 2, width: s, height: s, rx: s * 0.18, fill: `url(#${id}-ice)`, stroke: '#ffffff', 'stroke-opacity': 0.35, 'stroke-width': 1.5});
+    const sw = s * [1, 1.18, 0.9][i];
+    const sh = s * [0.92, 0.8, 1.05][i];
+    node(g, 'rect', {x: -sw / 2, y: -sh / 2, width: sw, height: sh, rx: s * [0.18, 0.26, 0.12][i], fill: `url(#${id}-ice)`, stroke: '#ffffff', 'stroke-opacity': 0.35, 'stroke-width': 1.5});
+    node(g, 'path', {d: `M${-sw * 0.3},${sh * 0.28} L${sw * 0.25},${-sh * 0.1}`, stroke: '#ffffff', 'stroke-opacity': 0.25, 'stroke-width': 2, 'stroke-linecap': 'round'});
     node(g, 'rect', {x: -s * 0.32, y: -s * 0.36, width: s * 0.2, height: s * 0.5, rx: s * 0.08, fill: '#ffffff', 'fill-opacity': 0.35});
     return {g, s};
   });
@@ -98,7 +101,8 @@ export function createGlass(svg, o) {
     let d = `M${l},${yy}`;
     for (let i = 1; i <= n; i++) {
       const xx = mix(l, r, i / n);
-      d += ` L${xx},${yy + amp * Math.sin(i * 0.9 + t * 9) * Math.sin((Math.PI * i) / n)}`;
+      const wave = 0.55 * Math.sin(i * 0.9 + t * 9) + 0.3 * Math.sin(i * 2.3 - t * 13 + 1.7) + 0.15 * Math.sin(i * 4.1 + t * 21);
+      d += ` L${xx},${yy + amp * wave * Math.sin((Math.PI * i) / n)}`;
     }
     return d;
   };
@@ -116,7 +120,7 @@ export function createGlass(svg, o) {
       liquid.style.display = volume.style.display = level > 0.002 ? '' : 'none';
       volume.setAttribute('y', ly);
       volume.setAttribute('height', Math.max(0, y + h - ly));
-      const amp = 3 + 9 * ripple;
+      const amp = 0.6 + 8 * ripple;
       const top = surfacePath(ly, amp, t);
       const l = left(ly) + wall;
       const r = right(ly) - wall;
@@ -156,7 +160,7 @@ export function createGlass(svg, o) {
         b.setAttribute('cy', yy);
         // Cold brew is still, not fizzy: air only shows while it is being poured, then clears.
         b.style.display = level > 0.08 && ripple > 0.15 ? '' : 'none';
-        b.setAttribute('fill-opacity', 0.35 * clamp(ripple));
+        b.setAttribute('fill-opacity', (0.12 + 0.35 * rand(7, i)) * clamp(ripple));
       });
       // Ice falls in one cube at a time (iceIn 0..1), floats at the surface and bobs on the hit.
       ice.forEach(({g, s}, i) => {
