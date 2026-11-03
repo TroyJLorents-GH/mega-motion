@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Product hero</title>
+  <link rel="stylesheet" href="./node_modules/@fontsource/inter-tight/400.css">
+  <link rel="stylesheet" href="./node_modules/@fontsource/inter-tight/600.css">
+  <link rel="stylesheet" href="./node_modules/@fontsource/inter-tight/700.css">
+  <link rel="stylesheet" href="./node_modules/@fontsource/jetbrains-mono/500.css">
+  <link rel="stylesheet" href="./styles.css">
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "./node_modules/three/build/three.module.js",
+      "three/addons/": "./node_modules/three/examples/jsm/",
+      "gsap": "./node_modules/gsap/index.js",
+      "gsap/": "./node_modules/gsap/"
+    }
+  }
+  </script>
+  <script type="module" src="./main.js"></script>
+</head>
+<body>
+  <!-- One persistent canvas behind a semantic page; the still shows until the first frame, or instead of WebGL. -->
+  <canvas id="gl" aria-hidden="true"></canvas>
+  <div class="still-img" aria-hidden="true"></div>
+  <div class="callouts"></div>
+  <header class="nav"></header>
+  <main>
+    <section class="hero"></section>
+    <section class="stage"></section>
+    <section class="outro"></section>
+  </main>
+  <noscript><p style="padding:2rem">This page needs JavaScript for its 3D product view.</p></noscript>
+</body>
+</html>

@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Product story</title>
+<link rel="stylesheet" href="node_modules/@fontsource/inter-tight/400.css">
+<link rel="stylesheet" href="node_modules/@fontsource/inter-tight/500.css">
+<link rel="stylesheet" href="node_modules/@fontsource/inter-tight/600.css">
+<link rel="stylesheet" href="node_modules/@fontsource/inter-tight/700.css">
+<link rel="stylesheet" href="node_modules/@fontsource/jetbrains-mono/500.css">
+<link rel="stylesheet" href="styles.css">
+</head>
+<!-- Structure only: every word, number and colour comes from content.json (data-c = a text path,
+     data-lines = an array of headline lines). Motion lives in main.js; timings in tokens.js. -->
+<body class="loading">
+<header class="nav">
+  <a class="nav-brand" href="#top" data-c="product.name"></a>
+  <nav class="nav-links" aria-label="Chapters">
+    <a href="#quiet" data-c="quiet.chapter"></a>
+    <a href="#battery" data-c="battery.chapter"></a>
+    <a href="#weight" data-c="weight.chapter"></a>
+  </nav>
+  <a class="nav-cta" href="#buy" data-c="nav.cta"></a>
+</header>
+
+<main>
+  <!-- 1. Hero: the product lands, then the headline. -->
+  <section class="hero" id="top">
+    <div class="hero-copy">
+      <p class="eyebrow" data-c="hero.eyebrow"></p>
+      <h1 class="display hero-title" data-lines="hero.headline"></h1>
+    </div>
+    <div class="hero-stage">
+      <div class="aura" aria-hidden="true"></div>
+      <svg class="product hero-product" data-product viewBox="0 0 400 500" aria-hidden="true"></svg>
+    </div>
+    <p class="hero-sub" data-c="hero.sub"></p>
+  </section>
+
+  <!-- 2. Pinned: noise collapses into one still line. -->
+  <section class="chapter quiet" id="quiet" data-pin="quiet">
+    <div class="stage">
+      <canvas class="field" aria-hidden="true"></canvas>
+      <div class="quiet-glow" aria-hidden="true"></div>
+      <svg class="product quiet-product" data-product viewBox="0 0 400 500" aria-hidden="true"></svg>
+      <div class="copy copy-top">
+        <p class="kicker" data-c="quiet.kicker" data-hold></p>
+        <h2 class="display title" data-lines="quiet.headline" data-hold></h2>
+        <p class="body" data-c="quiet.body" data-after></p>
+      </div>
+      <div class="rail" aria-hidden="true"><span class="rail-n">01</span><span class="rail-bar"><i></i></span><span class="rail-label" data-c="quiet.chapter"></span></div>
+    </div>
+  </section>
+
+  <!-- 3. Normal flow: one sentence that lights up word by word as it passes. -->
+  <section class="bridge">
+    <p class="bridge-text" data-c="bridge.text" data-words></p>
+  </section>
+
+  <!-- 4. Pinned: the clock runs to the battery figure. -->
+  <section class="chapter battery" id="battery" data-pin="battery">
+    <div class="stage">
+      <div class="copy copy-kicker"><p class="kicker" data-c="battery.kicker" data-hold></p></div>
+      <div class="readout" data-settled><span class="num">0</span><span class="unit" data-c="battery.unit"></span></div>
+      <div class="timeline">
+        <div class="track" aria-hidden="true"><div class="ticks"></div><i class="fill"></i><i class="dot"></i></div>
+        <div class="tick-labels"></div>
+      </div>
+      <div class="copy copy-low">
+        <h2 class="display title title-s" data-lines="battery.headline" data-after></h2>
+        <p class="body" data-c="battery.body" data-after></p>
+      </div>
+      <div class="rail" aria-hidden="true"><span class="rail-n">02</span><span class="rail-bar"><i></i></span><span class="rail-label" data-c="battery.chapter"></span></div>
+    </div>
+  </section>
+
+  <!-- 5. Pinned: a weight drops onto the scale and the beam settles level. -->
+  <section class="chapter weight" id="weight" data-pin="weight">
+    <div class="stage">
+      <div class="copy copy-side">
+        <p class="kicker" data-c="weight.kicker" data-hold></p>
+        <h2 class="display title" data-lines="weight.headline" data-hold></h2>
+        <p class="body" data-c="weight.body" data-after></p>
+      </div>
+      <svg class="balance" aria-hidden="true"></svg>
+      <div class="rail" aria-hidden="true"><span class="rail-n">03</span><span class="rail-bar"><i></i></span><span class="rail-label" data-c="weight.chapter"></span></div>
+    </div>
+  </section>
+
+  <!-- 6. Normal flow: the summary and the call to action. -->
+  <section class="summary" id="buy">
+    <svg class="product summary-product" data-product viewBox="0 0 400 500" aria-hidden="true"></svg>
+    <h2 class="display summary-title" data-c="summary.title"></h2>
+    <p class="summary-tagline" data-c="summary.tagline"></p>
+    <ul class="specs"></ul>
+    <a class="cta" data-c="summary.cta"></a>
+  </section>
+</main>
+
+<script type="module" src="main.js"></script>
+</body>
+</html>

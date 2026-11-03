@@ -1,0 +1,29 @@
+{
+  "eyebrow": "Settings / General",
+  "title": "Preferences",
+  "intro": "Changes apply to this device when you save.",
+  "toggles": [
+    {"id": "notifications", "label": "Notifications", "description": "Mentions, replies and reminders.", "on": true},
+    {"id": "login", "label": "Open at login", "description": "Start in the menu bar when you sign in.", "on": false},
+    {"id": "updates", "label": "Automatic updates", "description": "Install new versions overnight.", "on": false},
+    {"id": "analytics", "label": "Share usage analytics", "description": "Anonymous data that helps us improve.", "on": true}
+  ],
+  "slider": {"id": "volume", "label": "Alert volume", "min": 0, "max": 100, "step": 1, "value": 64, "unit": "%"},
+  "save": {"idle": "Save changes", "loading": "Saving…", "done": "Saved", "error": "Try again"},
+  "status": {"clean": "No unsaved changes", "one": "1 unsaved change", "many": "{n} unsaved changes", "saving": "Saving…", "saved": "All changes saved"},
+  "toast": {"title": "Settings saved", "description": "Your preferences are synced to this device.", "tone": "success"},
+  "demo": {"saveLatencyMs": 650},
+  "colors": {
+    "ground": "#0B0B0D",
+    "panel": "#131316",
+    "surface": "#1B1B1F",
+    "line": "rgba(255,255,255,0.07)",
+    "ink": "#F2F0EA",
+    "muted": "#8A8A8E",
+    "accent": "#FF5A1F",
+    "ring": "rgba(242,240,234,0.75)",
+    "success": "#3DD68C",
+    "track": "#2C2C31",
+    "trackHover": "#36363C"
+  }
+}

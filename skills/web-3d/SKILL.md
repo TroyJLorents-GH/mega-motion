@@ -15,6 +15,18 @@ Decide in this order:
 5. Light and materials: one key plus environment map, neutral tone mapping, grey-card exposure (§15).
 6. Robustness: compile shaders before the hero shows, handle context loss, seed late-loading scenes at the current scroll progress (`references/principles-3d.md` §31).
 
+
+## Start from the template, not a blank file
+
+For a product hero that turns on scroll, scaffold the proven template and adapt it:
+
+```
+node <plugin>/shared/web-studio/new_page.mjs <folder> --template web-3d/product-hero
+cd <folder> && npm install
+```
+
+Put the product name, callouts and numbers in `content.json`; set `model` to a real `.glb` (CC0 or the brand's) when there is one, otherwise adapt the procedural model in `watch.js`. Then `node studio/web.mjs shots`, `check` and `film`. Read `<plugin>/shared/web-studio/README.md` for the page contract. The template: procedural studio environment (no HDRI download), one key light, contact shadow, callouts on leader lines projected from 3D anchors every frame, a camera plateau per callout, an SVG fallback without WebGL, 9 draw calls at 390 px. Keep under 50 draw calls on phones.
+
 ## Red flags
 
 - A model shipped straight from the modelling tool without compression

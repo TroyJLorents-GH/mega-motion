@@ -15,6 +15,18 @@ Decide in this order:
 5. Native API or GSAP: `../../shared/native-apis.md`.
 6. Reduced motion: normal-flow chapters with key-pose stills, designed in the beat table.
 
+
+## Start from the template, not a blank file
+
+For a product or feature story, scaffold the proven template and adapt it:
+
+```
+node <plugin>/shared/web-studio/new_page.mjs <folder> --template scroll-story/product-story
+cd <folder> && npm install
+```
+
+Put the words, numbers and colours in `content.json` (and a real cutout in `product.image` when there is one), then `node studio/web.mjs shots` (phone and desktop contact sheets), `check` (text still while read, pin budget, frame pacing, no horizontal scroll, reduced motion keeps content) and `film`. Read `<plugin>/shared/web-studio/README.md` for the page contract. The template: hero, a pinned chapter per claim where the motion proves it (noise lines that calm, an hour count with a timeline, a balance for weight), a bridge, a summary. Adapt its chapters before writing new ones; keep its structure (`chapter(name, render(p))`, `data-read` plateaus, `?capture`, `window.ScrollTrigger`).
+
 ## Red flags
 
 - Scroll speed altered, direction reversed, or wheel events intercepted on touch

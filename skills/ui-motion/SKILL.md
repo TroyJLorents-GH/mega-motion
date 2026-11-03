@@ -13,6 +13,18 @@ Interface motion orients and responds; it rarely persuades.
 - Transitions answer "where did I go": continuity of direction, shared elements, hidden cuts. View Transitions for route changes where supported; Flip where the morph must stay interruptible or live.
 - Design for interruption: `overwrite: 'auto'`, `gsap.quickTo` for followers, `Flip.killFlipsOf()` before capturing state, never a CSS transition on a property JavaScript drives.
 
+
+## Start from the kit, not a blank file
+
+The template ships reusable components with motion already tuned (toggle, slider, async button, toast stack) in `kit/`, shown as a settings panel:
+
+```
+node <plugin>/shared/web-studio/new_page.mjs <folder> --template ui-motion/settings-panel
+cd <folder> && npm install
+```
+
+Lift components from `kit/` into the user's app (plain JS, or wrap them in React as `TEMPLATE.md` shows), or edit `content.json` for the demo. `node studio/web.mjs check` measures feedback within 100 ms per interaction, survival of five fast repeats, and reduced motion; `shots` and `film` record the tour (`tour.js`). Read `<plugin>/shared/web-studio/README.md` for the page contract.
+
 ## Red flags
 
 - Whole cards scaling on hover, counting-up stats, filler marquees, cursor gimmicks everywhere

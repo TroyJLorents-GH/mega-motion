@@ -24,12 +24,14 @@ Then start a new session and just describe what you want ("a scroll story for my
 | `direct` | Start here: brief, references, beat plan, defaults, approval gates. Asks one optional question, or runs on premium house defaults |
 | `setup` | Checks Node, Python, ffmpeg and its filters, Playwright, Blender and the companion skills; gives install commands; never installs without your yes |
 | `study` | Measures a reference site or video clean-room (timings, easings, scroll ranges) |
-| `scroll-story` | Pins, scrub, camera holds while text is read, smooth-scroll choices, iOS Safari fixes |
-| `web-3d` | three.js / React Three Fiber budgets, renderer choice, phone framing, materials, delivery format |
+| `scroll-story` | Pins, scrub, camera holds while text is read, smooth-scroll choices, iOS Safari fixes. Ships a `product-story` template |
+| `web-3d` | three.js / React Three Fiber budgets, renderer choice, phone framing, materials, delivery format. Ships a `product-hero` template (procedural model or your .glb) |
 | `blender-web` | Getting models, passes and camera paths out of Blender for the web |
-| `ui-motion` | Feedback timing, hover, loading, page transitions, Flip, drag, React rules |
+| `ui-motion` | Feedback timing, hover, loading, page transitions, Flip, drag, React rules. Ships a reusable component kit (toggle, slider, async button, toasts) |
 | `code-film` | Videos made from code. Ships a render studio (preview, stills, contact sheets, MP4 with a synthesized score, freeze and determinism checks; macOS, Windows, Linux) and a proven `launch-reel` template |
 | `motion-qa` | Measurable checks before you call it done |
+
+Every template is checked by a harness: `skills/code-film/studio` for video (freeze, rhythm, determinism, safe zone) and `shared/web-studio` for pages (text still while read, pin budget, frame pacing, 100 ms feedback, reduced motion keeps content), at phone and desktop size.
 
 Agents: `motion-critic` (reviews rendered frames in a fresh context, never sees the builder's notes), `qa-runner`, `reference-analyst`.
 

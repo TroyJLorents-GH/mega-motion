@@ -1,0 +1,20 @@
+{
+  "name": "mega-motion-page",
+  "private": true,
+  "type": "module",
+  "description": "A motion web page made with the mega-motion web studio.",
+  "scripts": {
+    "preview": "node studio/web.mjs preview",
+    "shots": "node studio/web.mjs shots",
+    "film": "node studio/web.mjs film",
+    "check": "node studio/web.mjs check"
+  },
+  "dependencies": {
+    "@fontsource/inter-tight": "5.3.0",
+    "@fontsource/jetbrains-mono": "5.3.0",
+    "gsap": "3.15.0",
+    "lenis": "1.3.26",
+    "playwright": "1.64.1",
+    "three": "0.187.0"
+  }
+}

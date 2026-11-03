@@ -1,0 +1,97 @@
+{
+  "meta": {
+    "title": "Aura One. Wireless headphones.",
+    "lang": "en"
+  },
+  "palette": {
+    "ground": "#F5F5F7",
+    "paper": "#FFFFFF",
+    "ink": "#1D1D1F",
+    "muted": "#6E6E73",
+    "rule": "#D2D2D7",
+    "accent": "#3B4CFF"
+  },
+  "product": {
+    "name": "Aura One",
+    "image": "",
+    "imageAlt": "Aura One wireless headphones",
+    "shell": "#34363B",
+    "cushion": "#1C1D20",
+    "metal": "#C9CCD2"
+  },
+  "nav": {
+    "cta": "Buy"
+  },
+  "hero": {
+    "eyebrow": "Aura One",
+    "headline": [
+      "Quiet,",
+      "made light."
+    ],
+    "sub": "Wireless headphones with adaptive noise cancelling, a 40-hour battery and a weight of 250 g."
+  },
+  "quiet": {
+    "chapter": "Quiet",
+    "kicker": "Adaptive noise cancelling",
+    "headline": [
+      "The room",
+      "falls away."
+    ],
+    "body": "Aura One listens to the noise around you and cancels it, so only the music is left."
+  },
+  "bridge": {
+    "text": "The noise drops away. The music stays. And it keeps on playing, hour after hour."
+  },
+  "battery": {
+    "chapter": "Battery",
+    "kicker": "40-hour battery",
+    "hours": 40,
+    "unit": "hours",
+    "tickEvery": 10,
+    "tickUnit": "h",
+    "headline": [
+      "One charge.",
+      "Forty hours."
+    ],
+    "body": "One charge, then 40 hours of music before Aura One asks for another."
+  },
+  "weight": {
+    "chapter": "Weight",
+    "kicker": "Weight",
+    "grams": 250,
+    "weightLabel": "250 g",
+    "headline": [
+      "250 grams.",
+      "Barely there."
+    ],
+    "body": "Put it on the scale and Aura One balances a 250 g weight. On your head, you hardly notice it."
+  },
+  "summary": {
+    "title": "Aura One.",
+    "tagline": "Quiet, made light.",
+    "specs": [
+      {
+        "value": "ANC",
+        "label": "Adaptive noise cancelling"
+      },
+      {
+        "value": "40 h",
+        "label": "Battery"
+      },
+      {
+        "value": "250 g",
+        "label": "Weight"
+      }
+    ],
+    "cta": "Buy Aura One",
+    "ctaHref": "#buy"
+  },
+  "motion": {
+    "smoothScrollOnDesktop": false,
+    "pins": {
+      "quiet": 1.6,
+      "battery": 1.6,
+      "weight": 1.4
+    }
+  }
+}

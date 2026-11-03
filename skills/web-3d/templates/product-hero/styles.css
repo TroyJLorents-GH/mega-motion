@@ -1,0 +1,93 @@
+/* Product hero. Colours come from content.json (set as CSS variables by main.js). */
+:root {
+  --ground: #0B0B0D; --ink: #F2F0EA; --muted: #8A8A8E; --accent: #FF5A1F;
+  --display: "Inter Tight", system-ui, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, monospace;
+  --pad: clamp(20px, 5.5vw, 88px);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { background: var(--ground); color: var(--ink); -webkit-text-size-adjust: 100%; }
+body { font: 400 16px/1.45 var(--display); overflow-x: clip; }
+::selection { background: var(--accent); color: var(--ground); }
+
+#gl { position: fixed; inset: 0; width: 100vw; height: 100vh; display: block; z-index: 0; opacity: 0; }
+.still-img { position: fixed; z-index: 0; pointer-events: none; left: 67%; top: 54%; width: min(34vw, 46vh); transform: translate(-50%, -50%); }
+.still-img svg { display: block; width: 100%; height: auto; }
+.no-gl #gl { display: none; }
+.no-gl .callouts { display: none; }
+.gl-lost .still-img { opacity: 1 !important; }
+.gl-lost #gl, .gl-lost .callouts { visibility: hidden; }
+
+.nav { background: linear-gradient(var(--ground) 30%, transparent); position: fixed; z-index: 4; top: 0; left: 0; right: 0; padding: 22px var(--pad); pointer-events: none;
+  font: 500 12px/1 var(--mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--ink); }
+main { position: relative; z-index: 1; }
+
+.kicker { font: 500 12px/1 var(--mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted);
+  display: flex; align-items: center; gap: 12px; }
+.kicker::before { content: ""; width: 28px; height: 1px; background: currentColor; opacity: 0.7; }
+
+/* Hero: the name beside the product, never behind it. */
+.hero { position: relative; height: 100vh; padding: 0 var(--pad); display: flex; flex-direction: column; justify-content: center; }
+.hero .title { font: 700 clamp(64px, 9.2vw, 168px)/0.92 var(--display); letter-spacing: -0.035em; margin-top: 22px; max-width: 6ch; }
+.hero .cue { position: absolute; bottom: 36px; left: var(--pad); font: 500 11px/1 var(--mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+
+/* Stage: pinned while the three chapters play. */
+.stage { position: relative; height: 100vh; }
+.chapters { position: absolute; inset: 0; pointer-events: none; }
+.chapter { position: absolute; left: var(--pad); top: 50%; margin-top: -0.5em; width: min(40vw, 620px); visibility: hidden; opacity: 0; }
+.chapter .headline { font: 700 clamp(52px, 5.6vw, 104px)/0.95 var(--display); letter-spacing: -0.03em; margin-top: 20px; text-wrap: balance; }
+.chapter .line { margin-top: 18px; color: var(--muted); max-width: 34ch; font-size: 18px; }
+
+.rail { position: absolute; left: var(--pad); bottom: 52px; width: min(40vw, 560px); display: flex; flex-direction: column; gap: 12px; opacity: 0;
+  font: 500 11px/1 var(--mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.rail ol { list-style: none; display: flex; justify-content: space-between; }
+.rail li { opacity: 0.45; transition: opacity 200ms ease-out, color 200ms ease-out; }
+.rail li.on { opacity: 1; color: var(--ink); }
+.rail-track { height: 1px; background: rgba(242, 240, 234, 0.16); position: relative; order: 2; }
+.rail-fill { position: absolute; inset: 0; background: var(--ink); transform-origin: 0 50%; transform: scaleX(0); }
+
+/* Callouts: DOM labels on leader lines from points projected off the model each frame. */
+.callouts { position: fixed; inset: 0; z-index: 3; pointer-events: none; }
+.leaders { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.leaders line { stroke: var(--ink); stroke-width: 1; stroke-opacity: 0; }
+.leaders .ring { fill: none; stroke: var(--accent); stroke-width: 2.5; stroke-linecap: round; stroke-opacity: 0; transform-box: fill-box; transform-origin: center; transform: rotate(-90deg); }
+.callouts .dot { position: absolute; left: -5px; top: -5px; width: 10px; height: 10px; border-radius: 50%; visibility: hidden;
+  border: 1px solid var(--ink); background: radial-gradient(circle, var(--ink) 0 2px, transparent 2.5px); }
+.callouts .label { position: absolute; left: 0; top: 0; visibility: hidden; padding: 10px 14px 11px; white-space: nowrap;
+  border-left: 1px solid rgba(242, 240, 234, 0.55); background: linear-gradient(90deg, rgba(11, 11, 13, 0.72), rgba(11, 11, 13, 0)); }
+.callouts .label .k { display: block; font: 500 10.5px/1 var(--mono); letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+.callouts .label .v { display: block; margin-top: 7px; font: 600 19px/1 var(--display); letter-spacing: -0.01em; font-variant-numeric: tabular-nums; }
+
+/* Outro: lockup and the three facts, in normal flow. */
+.outro { height: 140vh; padding: 0 var(--pad) 13vh; display: flex; align-items: flex-end; }
+.outro .title { font: 700 clamp(56px, 7vw, 128px)/0.92 var(--display); letter-spacing: -0.035em; margin-top: 20px; }
+.outro .specs { list-style: none; display: flex; flex-wrap: wrap; gap: 0; margin-top: 30px; font: 500 12px/1 var(--mono); letter-spacing: 0.08em; text-transform: uppercase; }
+.outro .specs li { padding: 12px 18px 12px 0; margin-right: 18px; border-right: 1px solid rgba(242, 240, 234, 0.2); }
+.outro .specs li:last-child { border-right: 0; }
+
+/* Portrait: product in the upper half, copy at the bottom. */
+@media (max-aspect-ratio: 85/100) {
+  .hero { justify-content: flex-start; padding-top: 15vh; }
+  .hero .title { font-size: clamp(60px, 18vw, 120px); }
+  .chapter { top: auto; bottom: calc(8vh + env(safe-area-inset-bottom)); margin-top: 0; width: auto; right: var(--pad); }
+  .chapter .headline { font-size: clamp(40px, 11vw, 80px); margin-top: 16px; }
+  .rail { top: 60px; bottom: auto; left: var(--pad); right: var(--pad); width: auto; }
+  .still-img { left: 50%; top: 36%; width: 58vw; }
+  .outro { padding-bottom: 9vh; }
+  .outro .specs { margin-top: 22px; }
+  .outro .specs li { padding: 10px 12px 10px 0; margin-right: 12px; font-size: 11px; }
+  .nav { padding: 20px var(--pad); }
+}
+
+/* Reduced motion and no WebGL: chapters in normal flow, one key pose each, cross-faded. */
+.is-still .stage { height: auto; }
+.is-still .chapters { position: static; }
+.is-still .chapter { position: relative; top: auto; bottom: auto; margin: 0; height: 100vh; width: auto; display: flex; flex-direction: column; justify-content: center; visibility: visible; opacity: 1; }
+.is-still .rail { display: none; }
+.is-still .outro { height: 100vh; align-items: center; padding-bottom: 0; }
+.is-still .chapter > * { width: min(40vw, 620px); }
+@media (max-aspect-ratio: 85/100) {
+  .is-still .chapter { justify-content: flex-end; padding-bottom: 9vh; }
+  .is-still .chapter > * { width: auto; }
+  .is-still .outro { align-items: flex-end; padding-bottom: 9vh; }
+}

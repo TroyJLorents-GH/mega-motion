@@ -1,0 +1,371 @@
+/* Interface motion kit: component styles. Theme through the custom properties below.
+   Rules: JavaScript drives transform and opacity on the moving layers; CSS transitions only touch properties
+   JavaScript never drives (hover colours, the focus ring, the halo). Focus rings show for keyboard users. */
+:root {
+  --mm-ground: #0b0b0d;
+  --mm-ink: #f2f0ea;
+  --mm-muted: #8a8a8e;
+  --mm-accent: #ff5a1f;
+  --mm-success: #3dd68c;
+  --mm-danger: #ff5c5c;
+  --mm-track: #2c2c31;
+  --mm-track-hover: #36363c;
+  --mm-knob: #f7f7f5;
+  --mm-surface: #1b1b1f;
+  --mm-line: rgba(255, 255, 255, 0.08);
+  --mm-ring: rgba(242, 240, 234, 0.75);
+  --mm-on-ink: #0b0b0d;
+  --mm-on-success: #08130d;
+  --mm-font: 'Inter Tight', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --mm-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+}
+
+.mm-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* focus: one ring, keyboard only, no delay */
+.mm-switch:focus,
+.mm-slider:focus,
+.mm-btn:focus,
+.mm-toast:focus,
+.mm-toast button:focus {
+  outline: none;
+}
+html[data-input='keyboard'] .mm-switch:focus .mm-switch__track,
+html[data-input='keyboard'] .mm-btn:focus,
+html[data-input='keyboard'] .mm-toast:focus,
+html[data-input='keyboard'] .mm-toast button:focus,
+html[data-input='keyboard'] .mm-slider:focus .mm-slider__knob {
+  box-shadow: 0 0 0 2px var(--mm-ground), 0 0 0 4px var(--mm-ring);
+}
+
+/* ---------- switch ---------- */
+.mm-switch {
+  appearance: none;
+  border: 0;
+  background: none;
+  padding: 9px;
+  margin: -9px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  flex: none;
+}
+.mm-switch__track {
+  position: relative;
+  display: block;
+  width: 44px;
+  height: 26px;
+  border-radius: 13px;
+  background: var(--mm-track);
+  transition: background-color 120ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0ms;
+}
+.mm-switch:hover .mm-switch__track {
+  background: var(--mm-track-hover);
+}
+.mm-switch__fill,
+.mm-switch__hover {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  opacity: 0;
+}
+.mm-switch__fill {
+  background: var(--mm-accent);
+}
+.mm-switch__hover {
+  background: rgba(255, 255, 255, 0.16);
+}
+.mm-switch__thumb,
+.mm-switch__shadow {
+  position: absolute;
+  top: 2px;
+  left: 0;
+  width: 22px;
+  height: 22px;
+}
+.mm-switch__shadow {
+  border-radius: 11px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.45), 0 0 0 0.5px rgba(0, 0, 0, 0.2);
+  transform-origin: 0 50%;
+}
+.mm-switch__knob {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: var(--mm-knob);
+}
+
+/* ---------- slider ---------- */
+.mm-slider {
+  position: relative;
+  display: block;
+  height: 28px;
+  cursor: pointer;
+  touch-action: pan-y;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+.mm-slider[aria-disabled='true'] {
+  opacity: 0.4;
+  cursor: default;
+}
+.mm-slider__track {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 6px;
+  margin-top: -3px;
+  border-radius: 3px;
+  background: var(--mm-track);
+  overflow: hidden;
+}
+.mm-slider__fill {
+  position: absolute;
+  inset: 0;
+  background: var(--mm-accent);
+}
+.mm-slider__thumb {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 20px;
+  height: 20px;
+  margin-top: -10px;
+}
+.mm-slider__knob {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: var(--mm-knob);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.45), 0 0 0 0.5px rgba(0, 0, 0, 0.2);
+}
+.mm-slider__halo {
+  position: absolute;
+  inset: -7px;
+  border-radius: 50%;
+  background: var(--mm-accent);
+  opacity: 0;
+  transform: scale(0.7);
+  transition: opacity 140ms cubic-bezier(0.16, 1, 0.3, 1), transform 180ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+@media (hover: hover) {
+  .mm-slider:hover .mm-slider__halo {
+    opacity: 0.12;
+    transform: scale(0.85);
+  }
+}
+.mm-slider.is-dragging .mm-slider__halo {
+  opacity: 0.22;
+  transform: scale(1);
+}
+
+/* ---------- async button ---------- */
+.mm-btn {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  height: 40px;
+  min-width: 148px;
+  padding: 0 18px;
+  border: 0;
+  border-radius: 10px;
+  background: var(--mm-ink);
+  color: var(--mm-on-ink);
+  font: 600 14px/1 var(--mm-font);
+  letter-spacing: -0.005em;
+  cursor: pointer;
+  isolation: isolate;
+  overflow: hidden;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  transition: background-color 160ms cubic-bezier(0.16, 1, 0.3, 1), color 160ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.mm-btn.is-disabled {
+  /* dimmed by colour, not opacity, so the label stays a readable, real element */
+  background: var(--mm-track);
+  color: var(--mm-muted);
+  cursor: default;
+}
+.mm-btn__face {
+  grid-area: 1 / 1;
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+}
+.mm-btn__face svg {
+  flex: none;
+  display: block;
+}
+.mm-btn__tone {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  opacity: 0;
+}
+.mm-btn__tone--done {
+  background: var(--mm-success);
+}
+.mm-btn__tone--error {
+  background: var(--mm-danger);
+}
+.mm-btn__tone--press {
+  background: #000;
+  z-index: 0;
+}
+.mm-btn__spin {
+  display: block;
+  opacity: 0;
+}
+.mm-btn__spinner {
+  animation: mm-spin 640ms linear infinite;
+  animation-play-state: paused;
+}
+.mm-btn[aria-busy='true'] .mm-btn__spinner {
+  animation-play-state: running;
+}
+@keyframes mm-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .mm-btn__spinner {
+    display: none;
+  }
+}
+
+/* ---------- toasts ---------- */
+.mm-toaster {
+  position: fixed;
+  z-index: 50;
+  left: 50%;
+  bottom: 16px;
+  width: min(380px, calc(100vw - 24px));
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+@media (min-width: 720px) {
+  /* bottom centre, under the panel it reports on; add .mm-toaster--right for a corner stack */
+  .mm-toaster {
+    bottom: 28px;
+    width: 380px;
+  }
+  .mm-toaster--right {
+    left: auto;
+    right: 24px;
+    transform: none;
+  }
+}
+.mm-toaster__list {
+  position: relative;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.mm-toast {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 14px 10px 14px 14px;
+  border-radius: 12px;
+  background: var(--mm-surface);
+  border: 1px solid var(--mm-line);
+  box-shadow: 0 16px 36px -10px rgba(0, 0, 0, 0.7), 0 2px 6px rgba(0, 0, 0, 0.35);
+  color: var(--mm-ink);
+  font-family: var(--mm-font);
+  transform-origin: 50% 100%;
+  pointer-events: auto;
+  touch-action: pan-y;
+  user-select: none;
+  cursor: grab;
+}
+.mm-toast::after {
+  /* keeps the pointer inside the stack while crossing the gap between fanned-out toasts */
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 100%;
+  height: 12px;
+}
+.mm-toast__body {
+  flex: 1;
+  min-width: 0;
+}
+.mm-toast__icon {
+  display: block;
+  flex: none;
+  margin-top: 1px;
+  color: var(--mm-accent);
+}
+.mm-toast--success .mm-toast__icon {
+  color: var(--mm-success);
+}
+.mm-toast--error .mm-toast__icon {
+  color: var(--mm-danger);
+}
+.mm-toast__icon svg {
+  display: block;
+}
+.mm-toast__title {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 20px;
+  letter-spacing: -0.005em;
+}
+.mm-toast__desc {
+  margin: 2px 0 0;
+  font-size: 13px;
+  line-height: 18px;
+  color: var(--mm-muted);
+}
+.mm-toast__close,
+.mm-toast__action {
+  flex: none;
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: var(--mm-muted);
+  font: 500 13px/1 var(--mm-font);
+  border-radius: 7px;
+  cursor: pointer;
+  transition: background-color 120ms, color 120ms;
+}
+.mm-toast__close {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  margin: -4px 0 0;
+}
+.mm-toast__close:hover,
+.mm-toast__action:hover {
+  background: rgba(255, 255, 255, 0.07);
+  color: var(--mm-ink);
+}
+.mm-toast__action {
+  height: 28px;
+  padding: 0 10px;
+  margin-top: -4px;
+  color: var(--mm-ink);
+}
