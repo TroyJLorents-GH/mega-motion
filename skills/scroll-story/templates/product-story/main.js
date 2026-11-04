@@ -282,13 +282,13 @@ function markReads() {
 // Hero intro: the product lands, then the headline 250 ms after it settles. Nothing else moves.
 const heroLines = qa('.hero-title .line-in');
 const heroSub = q('.hero-sub');
-const aura = q('.aura');
+const halo = q('.halo');
 const intro = gsap.timeline({paused: true});
 if (RM) {
-  intro.fromTo([heroProduct, aura, ...heroLines, heroSub], {autoAlpha: 0}, {autoAlpha: 1, duration: 0.2, ease: 'none'});
+  intro.fromTo([heroProduct, halo, ...heroLines, heroSub], {autoAlpha: 0}, {autoAlpha: 1, duration: 0.2, ease: 'none'});
 } else {
   intro
-    .fromTo(aura, {autoAlpha: 0, scale: 0.9}, {autoAlpha: 1, scale: 1, duration: 1.6, ease: 'enter'}, 0)
+    .fromTo(halo, {autoAlpha: 0, scale: 0.9}, {autoAlpha: 1, scale: 1, duration: 1.6, ease: 'enter'}, 0)
     .fromTo(heroProduct, {autoAlpha: 0, y: 24}, {autoAlpha: 1, y: 0, duration: DUR.heroProduct, ease: 'enter'}, 0.05)
     .fromTo(heroLines, {autoAlpha: 1, yPercent: 135}, {yPercent: 0, duration: DUR.heroLine, ease: 'enter', stagger: DUR.lineStagger},
       0.05 + DUR.heroProduct * 0.55 + DUR.heroGap)
@@ -297,7 +297,7 @@ if (RM) {
   // One parallax moment: as the hero leaves, the product trails the page slightly and the light dims.
   gsap.timeline({scrollTrigger: {trigger: '.hero', start: 'top top', end: 'bottom top', scrub: SCRUB}})
     .to('.hero-stage', {yPercent: 14, scale: 0.94, ease: 'none'}, 0)
-    .to(aura, {opacity: 0.35, ease: 'none'}, 0);
+    .to(halo, {opacity: 0.35, ease: 'none'}, 0);
 }
 
 // Bridge: words light from grey to ink in reading order as the sentence crosses the screen.

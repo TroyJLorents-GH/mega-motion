@@ -41,7 +41,7 @@ svg { display: block; overflow: visible; }
 .hero-title { font-size: clamp(56px, min(6.4vw, 10svh), 108px); }
 .hero-stage { position: relative; min-height: 0; width: 100%; display: flex; align-items: center; justify-content: center; padding: 2svh 0 1svh; }
 .hero-product { position: relative; z-index: 1; height: 100%; max-height: 64svh; width: auto; max-width: 84vw; aspect-ratio: 4 / 5; }
-.aura { position: absolute; z-index: 0; left: 50%; top: 52%; width: min(120vw, 1100px); aspect-ratio: 1.4; transform: translate(-50%, -50%);
+.halo { position: absolute; z-index: 0; left: 50%; top: 52%; width: min(120vw, 1100px); aspect-ratio: 1.4; transform: translate(-50%, -50%);
   background: radial-gradient(closest-side, color-mix(in srgb, var(--accent) 9%, transparent) 0%, color-mix(in srgb, var(--accent) 3%, transparent) 50%, transparent 100%); }
 .hero-sub { font-size: clamp(17px, 1.35vw, 21px); font-weight: 500; line-height: 1.42; color: var(--muted); max-width: 30ch; }
 
@@ -106,7 +106,7 @@ svg { display: block; overflow: visible; }
 .cta:focus-visible, .nav a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
 
 /* Before the first frame: hide what the intro will reveal, so the final state never flashes. */
-.loading .hero-product, .loading .aura, .loading .hero-sub { visibility: hidden; }
+.loading .hero-product, .loading .halo, .loading .hero-sub { visibility: hidden; }
 .loading .hero-title { visibility: hidden; }
 
 /* Reduced motion: each chapter is a still at its key pose; no pin, no rail, no travel. */
