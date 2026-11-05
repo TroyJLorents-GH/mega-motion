@@ -51,7 +51,7 @@ const run = (exe, args, opts = {}) =>
 
 // ---------- a tiny static server, so fetch, fonts and modules work the same on every OS ----------
 const TYPES = {'.html': 'text/html', '.js': 'text/javascript', '.mjs': 'text/javascript', '.json': 'application/json', '.css': 'text/css',
-  '.woff2': 'font/woff2', '.woff': 'font/woff', '.png': 'image/png', '.jpg': 'image/jpeg', '.svg': 'image/svg+xml', '.wav': 'audio/wav', '.mp4': 'video/mp4'};
+  '.woff2': 'font/woff2', '.woff': 'font/woff', '.png': 'image/png', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.webp': 'image/webp', '.svg': 'image/svg+xml', '.wav': 'audio/wav', '.mp4': 'video/mp4'};
 const serve = (port = 0) =>
   new Promise((resolve) => {
     const server = http.createServer((req, res) => {
@@ -97,7 +97,14 @@ async function openPage({reduced = flag('reduced')} = {}) {
   page.on('pageerror', (e) => console.error('[page error]', e.message));
   page.on('console', (m) => m.type() === 'error' && console.error('[page]', m.text()));
   await page.goto(`http://127.0.0.1:${server.address().port}/index.html?render`);
-  await page.waitForFunction(() => window.__ready === true && typeof window.seek === 'function', null, {timeout: 60000});
+  await page.waitForFunction(() => (window.__ready === true && typeof window.seek === 'function') || window.__fatal, null, {timeout: 120000});
+  const fatal = await page.evaluate(() => window.__fatal);
+  if (fatal) {
+    console.error(`The film refused to render:\n${fatal}`);
+    await browser.close();
+    server.close();
+    process.exit(1);
+  }
   await page.evaluate(() => document.fonts.ready);
   console.log(`browser: ${name}${reduced ? ' (reduced motion)' : ''}`);
   const draw = (t) => page.evaluate((x) => window.seek(x), t);

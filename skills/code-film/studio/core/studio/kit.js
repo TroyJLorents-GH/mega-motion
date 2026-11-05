@@ -120,7 +120,14 @@ export async function boot(setup) {
   root.style.setProperty('--h', `${film.height}px`);
   for (const [k, v] of Object.entries(film.palette || {})) root.style.setProperty(`--${k}`, v);
   await document.fonts.ready;
-  const draw = await setup(film);
+  let draw;
+  try {
+    draw = await setup(film);
+  } catch (e) {
+    // A setup that refuses to run (a missing capture, a bad film.json) stops the render with its message.
+    window.__fatal = String(e?.message || e);
+    throw e;
+  }
   let cur = 0;
   window.seek = (t) => {
     cur = t;

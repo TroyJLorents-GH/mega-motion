@@ -10,7 +10,7 @@ cd my-film
 npm install
 ```
 
-`npm install` brings Playwright and the fonts (Inter Tight and JetBrains Mono, both OFL). The renderer uses Playwright's Chromium if it was downloaded (`npx playwright install chromium`), otherwise installed Google Chrome, otherwise Microsoft Edge, which every Windows machine has.
+`npm install` brings Playwright, three.js (MIT, used by the character-film template) and the fonts (Inter Tight and JetBrains Mono, both OFL). The renderer uses Playwright's Chromium if it was downloaded (`npx playwright install chromium`), otherwise installed Google Chrome, otherwise Microsoft Edge, which every Windows machine has.
 
 Needs: Node 18+ and ffmpeg on PATH. Python 3 is optional and adds the score and the freeze check.
 
@@ -21,6 +21,7 @@ Needs: Node 18+ and ffmpeg on PATH. Python 3 is optional and adds the score and 
 | `film.json` | Everything a non-coder changes: size, fps, duration, palette, the words, beat times, tempo and chords |
 | `index.html`, `film.js` | The composition: a pure function of time, drawn by `draw(t)` |
 | `glass.js` | (launch-reel) a drawn glass of a dark drink that pours, fills and settles; a category stand-in, never a brand's packaging |
+| `mascot.js`, `panels.js`, `smash.js`, `world.js` | (character-film) the voxel character and its acting, 3D app windows with live screens, the page breaking, and the three.js stage and camera; see its `TEMPLATE.md` |
 | `score.py` | The sound: cues placed on the events the composition reports |
 | `studio/render.mjs` | Preview, stills, contact sheets, the film, and the checks |
 | `studio/kit.js` | Motion kit: easings, closed-form springs, seeded noise, text fitting, live and render loop |
@@ -51,6 +52,7 @@ A composition calls `boot(setup)` from `studio/kit.js`. `setup(film)` builds the
 - Hide scenes with `display: none`, never `visibility: hidden`: a child set back to `visible` still shows inside a hidden parent, and only an out-of-order render reveals it.
 - No `will-change: transform` in a composition: Chrome caches the layer's pixels at one scale, so text goes soft during a camera push and frames depend on render order.
 - Push sound cues to `window.EVENTS` as `{t, kind}`. The renderer writes them to `out/timeline.json` and `score.py` places a sound on each, so sound and picture share one clock.
+- A setup that throws (for example a missing screen capture) stops the render with its message instead of rendering a stand-in: `boot` sets `window.__fatal` and `render.mjs` exits 1.
 - Respect `prefers-reduced-motion`: the kit's `reducedMotion()` tells you; replace movement with opacity. The main render forces full motion explicitly.
 
 ## The checks
