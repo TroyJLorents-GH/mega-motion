@@ -17,6 +17,7 @@ Motion is direction, not decoration. Every movement has one of four jobs: orient
 |---|---|
 | Measuring a reference site, app or video | `study` |
 | Scroll driving motion: pins, scrub, reading holds, smooth scroll, iOS | `scroll-story` |
+| A personality or brand site (athlete, creator, studio) in the award-site style: brand-mark page transitions, highlight wipes, pointer-reactive 3D hero | `signature-site` |
 | three.js or React Three Fiber on a page | `web-3d` |
 | Getting models, passes or camera paths out of Blender | `blender-web` |
 | Interface motion: feedback, hover, loading, page transitions, Flip | `ui-motion` |

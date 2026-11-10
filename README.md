@@ -25,6 +25,7 @@ Then start a new session and just describe what you want ("a scroll story for my
 | `setup` | Checks Node, Python, ffmpeg and its filters, Playwright, Blender and the companion skills; gives install commands; never installs without your yes |
 | `study` | Measures a reference site or video clean-room (timings, easings, scroll ranges) |
 | `scroll-story` | Pins, scrub, camera holds while text is read, smooth-scroll choices, iOS Safari fixes. Ships a `product-story` template |
+| `signature-site` | Award-style personality and brand sites: one brand gesture at every threshold (a mark-mask intro and page transition, line highlight wipes), CSS-sticky scrubbed chapters, a 1:1 horizontal gallery, a pointer-reactive three.js hero. Measured from landonorris.com, rebuilt clean-room with your own brand. Ships a `signature-site` template |
 | `web-3d` | three.js / React Three Fiber budgets, renderer choice, phone framing, materials, delivery format. Ships a `product-hero` template (procedural model or your .glb) |
 | `blender-web` | Getting models, passes and camera paths out of Blender for the web |
 | `ui-motion` | Feedback timing, hover, loading, page transitions, Flip, drag, React rules. Ships a reusable component kit (toggle, slider, async button, toasts) |

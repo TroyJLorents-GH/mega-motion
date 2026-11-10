@@ -1,0 +1,120 @@
+{
+  "meta": {
+    "title": "Kai Moreno. Sport climber.",
+    "description": "Kai Moreno, a sport climber based in Granada, Spain. Fifteen seasons on limestone and the routes that came out of them.",
+    "lang": "en"
+  },
+  "palette": {
+    "ground": "#111318",
+    "bone": "#F2EFE8",
+    "accent": "#4D7CFF",
+    "muted": "#8A8F98",
+    "raise": "#1A1D24",
+    "rule": "#2A2E37"
+  },
+  "mark": {
+    "label": "KM",
+    "viewBox": [168, 100],
+    "path": "M0 0H26V34L44 0H66L44.5 40.7L80 91.4V0H108L124 46L140 0H168V100H144V44L131 80H117L104 44V100H54L26 60V100H0Z",
+    "cores": [[0, 0, 26, 100], [144, 0, 24, 100], [0, 36, 44, 22]],
+    "introHeight": 30
+  },
+  "nav": {
+    "skip": "Skip to content",
+    "homeLabel": "Kai Moreno, home",
+    "home": "Home",
+    "climbs": "Climbs",
+    "contact": "Contact",
+    "contactHref": "index.html#contact",
+    "menu": "Menu",
+    "close": "Close"
+  },
+  "menu": {
+    "label": "Site menu",
+    "links": [
+      {"label": "Home", "href": "index.html"},
+      {"label": "Climbs", "href": "climbs.html"},
+      {"label": "Contact", "href": "index.html#contact"}
+    ],
+    "note": "Granada, Spain",
+    "email": "hello@kaimoreno.example"
+  },
+  "home": {
+    "hero": {
+      "eyebrow": "Sport climber · Granada, ES",
+      "name": "Kai Moreno",
+      "coords": "37.18° N  3.60° W",
+      "canvasLabel": "A limestone boulder drawn in code. Moving the pointer paints its survey layer."
+    },
+    "about": {
+      "eyebrow": "About",
+      "heading": "Patience before power.",
+      "body": "Kai Moreno has spent fifteen seasons on limestone, from the gorges outside Granada to the caves of northern Norway. He climbs slowly, reads a wall the way a surveyor reads a valley, and comes back to the same line until it gives. Most of his first ascents took longer to see than to send.",
+      "facts": [
+        {"label": "Based", "value": "Granada, Spain"},
+        {"label": "Discipline", "value": "Sport and deep-water solo"},
+        {"label": "On rock since", "value": "2011"}
+      ]
+    },
+    "stats": {
+      "eyebrow": "In numbers",
+      "items": [
+        {"value": 9, "suffix": "a+", "label": "Hardest redpoint"},
+        {"value": 37, "suffix": "", "label": "First ascents"},
+        {"value": 15, "suffix": "", "label": "Seasons on rock"}
+      ]
+    },
+    "quote": {
+      "text": "“The wall never hurries. I stopped asking it to.”",
+      "by": "Kai Moreno",
+      "where": "Los Cahorros, 2024"
+    },
+    "gallery": {
+      "eyebrow": "Selected climbs",
+      "heading": "Climbs",
+      "cardCta": "Open in the index",
+      "cardLabel": "Rock surface drawn in code for"
+    },
+    "contact": {
+      "eyebrow": "Contact",
+      "heading": "Let’s find the next line.",
+      "body": "Films, partnerships, route-setting and talks. Kai answers every message himself, usually from a campsite.",
+      "primary": {"label": "Contact", "href": "mailto:hello@kaimoreno.example"},
+      "secondary": {"label": "See all climbs", "href": "climbs.html"}
+    }
+  },
+  "climbsPage": {
+    "title": "Climbs. Kai Moreno.",
+    "eyebrow": "Index · 2014 to 2024",
+    "heading": "Every line, in order.",
+    "intro": "Ten routes that changed how Kai climbs. Grades are French sport grades; the year is the season of the first redpoint.",
+    "columns": {"no": "No.", "route": "Route", "grade": "Grade", "crag": "Crag", "year": "Year"},
+    "thumbLabel": "Rock surface drawn in code for",
+    "outro": {
+      "eyebrow": "Next",
+      "heading": "Back to the wall.",
+      "home": {"label": "Back home", "href": "index.html"},
+      "contact": {"label": "Contact", "href": "mailto:hello@kaimoreno.example"}
+    }
+  },
+  "climbs": [
+    {"id": "salt-and-silence", "light": "noon", "climber": [0.42, 0.34, 1],  "name": "Salt and Silence", "grade": "9a+", "crag": "Los Cahorros", "country": "Spain", "code": "ES", "year": 2024, "seed": 11, "featured": true, "note": "Three seasons of attempts on a blank grey shield above the river. The crux is one hold held for far too long."},
+    {"id": "the-long-exhale", "light": "dusk", "climber": [0.58, 0.46, -1],  "name": "The Long Exhale", "grade": "9a", "crag": "Margalef", "country": "Spain", "code": "ES", "year": 2023, "seed": 23, "featured": true, "note": "Sixty metres of pocketed conglomerate, climbed in one breath and one very long rest."},
+    {"id": "blue-hour", "light": "blue",  "name": "Blue Hour", "grade": "8c+", "crag": "Céüse", "country": "France", "code": "FR", "year": 2022, "seed": 37, "featured": true, "note": "Sent in the last light of the trip, on blue streaked limestone gone cold enough to stick."},
+    {"id": "quiet-weather", "light": "cave", "climber": [0.36, 0.3, 1],  "name": "Quiet Weather", "grade": "8c+", "crag": "Flatanger", "country": "Norway", "code": "NO", "year": 2021, "seed": 41, "featured": true, "note": "A granite cave line that waited out two weeks of rain and gave itself up on a still morning."},
+    {"id": "paper-moon", "light": "moon",  "name": "Paper Moon", "grade": "8c", "crag": "Kalymnos", "country": "Greece", "code": "GR", "year": 2019, "seed": 53, "featured": true, "note": "Tufa pinches and a moonlit lower-off. The first route Kai bolted himself."},
+    {"id": "low-tide-traverse", "light": "sea", "climber": [0.5, 0.42, -1],  "name": "Low Tide Traverse", "grade": "8b+", "crag": "Railay", "country": "Thailand", "code": "TH", "year": 2018, "seed": 67, "featured": true, "note": "Deep-water solo over a falling tide. Every fall meant swimming back to start."},
+    {"id": "granite-hymn", "light": "dawn",  "name": "Granite Hymn", "grade": "8b+", "crag": "Siurana", "country": "Spain", "code": "ES", "year": 2017, "seed": 71, "featured": false, "note": "Thin crimps on an orange wall, best climbed in the cold hour before sunrise."},
+    {"id": "small-hours", "light": "lamp", "climber": [0.46, 0.36, 1],  "name": "Small Hours", "grade": "8b", "crag": "Rodellar", "country": "Spain", "code": "ES", "year": 2016, "seed": 83, "featured": false, "note": "A steep arch climbed by headlamp to dodge the August heat."},
+    {"id": "second-wind", "light": "noon",  "name": "Second Wind", "grade": "8a+", "crag": "Arco", "country": "Italy", "code": "IT", "year": 2015, "seed": 97, "featured": false, "note": "The first route that needed a plan rather than a good day."},
+    {"id": "first-light", "light": "dawn", "climber": [0.4, 0.5, 1],  "name": "First Light", "grade": "8a", "crag": "El Chorro", "country": "Spain", "code": "ES", "year": 2014, "seed": 101, "featured": false, "note": "Where it started: a grey slab, a borrowed rope and four days of trying."}
+  ],
+  "footer": {
+    "note": "Kai Moreno is a fictional athlete. This is a demo of the mega-motion signature-site template.",
+    "copy": "© 2026 Kai Moreno",
+    "top": "Back to top"
+  },
+  "motion": {
+    "smoothScrollOnDesktop": true
+  }
+}

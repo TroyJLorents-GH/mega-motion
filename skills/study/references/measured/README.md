@@ -13,3 +13,7 @@ Measured on: <date, viewport, browser>
 ```
 
 Sources: synthesised from three model reviews (Fable 5.1, GPT-6 ASTRA, Gemini 4 Argon) on 2026-10-30, kept in the research folder. Items marked *verified* were checked against a primary source; everything else is reported or judgment.
+
+## Measured entries
+
+- `landonorris.md`: landonorris.com, measured 2026-11-09 (brand-mark thresholds, highlight wipes, CSS-sticky scrub, 1:1 horizontal gallery). Built into `skills/signature-site`.
