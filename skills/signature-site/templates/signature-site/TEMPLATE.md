@@ -61,6 +61,7 @@ Edit `content.json` and drop your files into the folder. Nothing else needs to c
 - **`home.about`**: `eyebrow`, `heading`, `body`, `facts` (`[{label, value}]`, any count).
 - **`home.stats`**: `eyebrow`, `items` (`[{value, suffix, label}]`, any count). Long figures shrink to fit, all at one size.
 - **`home.quote`**: `text`, `by`, `where`.
+- **`home.about.image`** (optional): a portrait of the person, revealed by the house gesture (a brand block retracting off it). `imageAlt` is its alt text, `imageFocus` its CSS object-position (for example `"40% 35%"`). A personality site with no image of the person reads as a template, so add one when you can.
 - **`home.gallery`**: `eyebrow`, `heading`, `cardMeta` (the line under each card: a list of strings using `{field}` placeholders, for example `["{kind}", "{where}", "{year}"]`), `cardCta` (the hover overlay) and `cardLabel` (the aria-label prefix of drawn images).
 - **`home.contact`**: `eyebrow`, `heading`, `body`, `primary` and `secondary` (`{label, href}`).
 - **`works`**: the list, in order. Each work has:

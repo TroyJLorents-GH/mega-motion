@@ -166,6 +166,26 @@ const metaLine = (cls, parts, w) => {
 
 if (PAGE === 'home') {
   const A = C.home.about;
+  // Optional portrait (home.about.image): the person, revealed by the house gesture (a brand block retracting).
+  if (A.image) {
+    const fig = el('figure', 'about-portrait');
+    const img = el('img');
+    img.src = A.image;
+    img.alt = A.imageAlt || '';
+    img.decoding = 'async';
+    if (A.imageFocus) img.style.objectPosition = A.imageFocus;
+    const block = el('span', 'about-portrait-block');
+    block.setAttribute('aria-hidden', 'true');
+    fig.append(img, block);
+    q('.about-head').append(fig);
+    if (!RM) {
+      const tl = gsap.timeline({paused: !CAPTURE})
+        .fromTo(img, {clipPath: 'inset(0 100% 0 0)', scale: 1.08}, {clipPath: 'inset(0 0% 0 0)', scale: 1, duration: WIPE.line * 1.5, ease: WIPE.lineEase}, 0)
+        .fromTo(block, {scaleX: 1}, {scaleX: 0, duration: WIPE.block * 1.5, ease: WIPE.blockEase}, WIPE.blockDelay);
+      if (CAPTURE) ScrollTrigger.create({trigger: fig, start: `top ${WIPE.start * 100}%`, end: `top ${WIPE.captureEnd * 100}%`, scrub: true, animation: tl});
+      else ScrollTrigger.create({trigger: fig, start: `top ${WIPE.start * 100}%`, once: true, onEnter: () => afterReveal.then(() => tl.play())});
+    }
+  }
   q('.facts').style.setProperty('--n', A.facts.length);
   for (const f of A.facts) {
     const d = el('div');
@@ -390,11 +410,11 @@ if (PAGE === 'home' && !RM) {
   }
   reads.push([q('.hero-name'), q('.hero')]);
 
-  // About: half a viewport of hold; the contour layer behind drifts so the frame never freezes.
-  q('.about').style.height = `calc(100svh + ${SCROLL.bioHold * 100}svh)`;
+  // No reading hold by default: the chapter sizes to its content (a portrait can make it taller than a screen).
+  q('.about').style.height = SCROLL.bioHold ? `calc(100svh + ${SCROLL.bioHold * 100}svh)` : 'auto';
   gsap.fromTo('.about-topo', {yPercent: SCROLL.drift / 2}, {yPercent: -SCROLL.drift / 2, ease: 'none',
     scrollTrigger: {trigger: '.about', start: 'top bottom', end: 'bottom top', scrub: true}});
-  reads.push([q('.about-lede'), q('.about')]);
+  if (SCROLL.bioHold) reads.push([q('.about-lede'), q('.about')]); // only a held chapter promises stillness
 
   // Gallery: the track is one screen plus the rail's overflow, so the rail moves exactly 1 px per 1 px scrolled.
   const track = q('.gallery');
