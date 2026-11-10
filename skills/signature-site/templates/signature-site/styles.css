@@ -1,5 +1,6 @@
-/* Signature site. Colours come from content.json as custom properties; the values here are first-paint fallbacks
-   and should match content.json.palette. Motion timings come from tokens.js (set as --house, --roll, --dur-*). */
+/* Signature site. Colours come from content.json (palette), set as custom properties by the <head> script before the
+   first paint; the values here only apply if content.json cannot be read. Motion timings come from tokens.js
+   (set as --house, --roll, --dur-*). */
 :root {
   --ground: #111318; --bone: #F2EFE8; --accent: #4D7CFF; --muted: #8A8F98; --raise: #1A1D24; --rule: #2A2E37;
   --house: cubic-bezier(0.65, 0.05, 0, 1);
@@ -93,7 +94,7 @@ html.lenis, html.lenis body { height: auto; }
 /* ---------- menu: a dark panel with a convex bottom edge ---------- */
 .menu { position: fixed; inset: 0; z-index: 800; }
 .menu[hidden] { display: none; }
-.menu-scrim { position: absolute; inset: 0; background: rgba(6, 7, 10, 0.55); }
+.menu-scrim { position: absolute; inset: 0; background: color-mix(in srgb, color-mix(in srgb, var(--ground) 45%, #000) 55%, transparent); }
 .menu-panel { position: absolute; top: 0; left: 0; right: 0; min-height: min(100svh, max(560px, 68svh)); display: flex; flex-direction: column;
   justify-content: space-between; gap: 6svh; padding: calc(var(--nav-h) + 6svh) var(--pad) 5svh; background: var(--raise); color: var(--bone); }
 .menu-curve { position: absolute; left: 0; top: calc(100% - 1px); width: 100%; height: clamp(44px, 10svh, 120px); fill: var(--raise); }
@@ -118,7 +119,8 @@ html.th-on .threshold, .threshold.is-on { visibility: visible; pointer-events: a
 .hero { position: relative; height: 200svh; }
 .hero-sticky { position: sticky; top: 0; height: 100svh; overflow: hidden; }
 .hero-frame { position: absolute; inset: 0; clip-path: inset(0px 0px 0px 0px round 0px);
-  background: radial-gradient(85% 70% at 50% 46%, #252A34 0%, #191C23 55%, #121419 100%); }
+  background: radial-gradient(85% 70% at 50% 46%, color-mix(in srgb, var(--raise) 92%, color-mix(in srgb, var(--bone), var(--accent)) 8%) 0%,
+    var(--raise) 55%, var(--ground) 100%); }
 .hero-canvas, .hero-fallback { position: absolute; inset: 0; width: 100%; height: 100%; }
 .hero-fallback { display: none; opacity: 0.55; }
 .no-gl .hero-fallback { display: block; }
@@ -136,16 +138,16 @@ html.th-on .threshold, .threshold.is-on { visibility: visible; pointer-events: a
 .about-topo { left: 0; top: -6%; width: 100%; height: 112%; opacity: 0.9; }
 .about-grid { position: relative; width: 100%; display: grid; grid-template-columns: minmax(0, 6fr) minmax(0, 5fr); gap: 6vw; align-items: end; }
 .about-lede { max-width: 36ch; }
-.facts { margin-top: 40px; padding-top: 18px; border-top: 1px solid var(--rule); display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px 24px; }
+.facts { margin-top: 40px; padding-top: 18px; border-top: 1px solid var(--rule); display: grid; grid-template-columns: repeat(var(--n, 3), minmax(0, 1fr)); gap: 18px 24px; }
 .facts dt { color: var(--muted); }
 .facts dd { margin-top: 8px; font-size: 15px; font-weight: 600; line-height: 1.3; letter-spacing: -0.01em; }
 
 /* ---------- 3. stats ---------- */
 .stats { padding: 18svh var(--pad) 12svh; }
-.stats-row { margin-top: 30px; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); border-top: 1px solid var(--rule); }
+.stats-row { margin-top: 30px; display: grid; grid-template-columns: repeat(var(--n, 3), minmax(0, 1fr)); border-top: 1px solid var(--rule); }
 .stat { padding: 26px 24px 8px 0; }
 .stat + .stat { padding-left: 24px; border-left: 1px solid var(--rule); }
-.stat-num { display: flex; align-items: baseline; font-weight: 700; font-size: clamp(76px, 11.5vw, 204px); line-height: 0.9; letter-spacing: -0.055em;
+.stat-num { display: flex; align-items: baseline; font-weight: 700; font-size: calc(clamp(76px, 11.5vw, 204px) * var(--fit, 1)); line-height: 0.9; letter-spacing: -0.055em;
   font-variant-numeric: tabular-nums; }
 .stat-num .n { display: inline-block; text-align: left; }
 .stat-num .sfx { margin-left: 0.04em; font-size: 0.44em; letter-spacing: -0.03em; color: var(--accent); }
@@ -174,8 +176,13 @@ html.th-on .threshold, .threshold.is-on { visibility: visible; pointer-events: a
 .card-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
 .card-a { transform: scale(1); transition: transform var(--dur-card) var(--house); }
 .card-b { clip-path: ellipse(0% 0% at 50% 64%); transition: clip-path var(--dur-card) var(--house); }
+.card-b img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+/* A photo's hover layer when there is no image2: the same photo as a duotone, ground to accent. */
+.duo { background: var(--accent); }
+.duo img { filter: grayscale(1) contrast(1.15) brightness(1.05); mix-blend-mode: multiply; }
 .card-overlay { position: absolute; z-index: 2; left: 0; right: 0; bottom: 0; padding: 18px; display: flex; justify-content: space-between; align-items: center;
-  color: var(--bone); background: linear-gradient(to top, rgba(17, 19, 24, 0.72), rgba(17, 19, 24, 0)); opacity: 0; transition: opacity var(--dur-card) var(--house); }
+  color: var(--bone); background: linear-gradient(to top, color-mix(in srgb, var(--ground) 72%, transparent), color-mix(in srgb, var(--ground) 0%, transparent));
+  opacity: 0; transition: opacity var(--dur-card) var(--house); }
 .card-overlay b { width: 30px; height: 30px; border-radius: 50%; background: var(--accent); display: grid; place-items: center; color: var(--ground); font-weight: 700; }
 .card-link:hover .card-a, .card-link:focus-visible .card-a { transform: scale(1.1); }
 .card-link:hover .card-b, .card-link:focus-visible .card-b { clip-path: ellipse(80% 72% at 50% 64%); }
@@ -198,15 +205,15 @@ html.th-on .threshold, .threshold.is-on { visibility: visible; pointer-events: a
 .foot-note { font-size: 14px; line-height: 1.4; max-width: 60ch; opacity: 0.8; }
 .foot-top { text-decoration: underline; text-underline-offset: 4px; }
 
-/* ---------- climbs.html ---------- */
+/* ---------- works.html (the second page; any file name, see content.json worksPage.file) ---------- */
 .index-hero { position: relative; overflow: hidden; min-height: 82svh; display: flex; flex-direction: column; justify-content: flex-end;
   padding: calc(var(--nav-h) + 14svh) var(--pad) 9svh; }
 .index-hero > :not(.topo) { position: relative; }
 .index-topo { inset: 0; width: 100%; height: 100%; opacity: 0.9; }
 .index-title { max-width: 9ch; margin-top: 24px; font-weight: 800; font-size: clamp(56px, 10.6vw, 196px); line-height: 0.86; letter-spacing: -0.052em; }
 .index-hero .lede { margin-top: 30px; }
-.index-list { padding: 4svh var(--pad) 10svh; }
-.index-cols, .row { display: grid; grid-template-columns: 52px 136px minmax(0, 1.7fr) 84px minmax(0, 1fr) 60px; gap: 0 24px; align-items: center; }
+.index-list { padding: 4svh var(--pad) 10svh; --cols: 84px minmax(0, 1fr) 60px; } /* --cols: set from worksPage.fields */
+.index-cols, .row { display: grid; grid-template-columns: 52px 136px minmax(0, 1.7fr) var(--cols); gap: 0 24px; align-items: center; }
 .index-cols { padding-bottom: 14px; border-bottom: 1px solid var(--rule); color: var(--muted); }
 .row { position: relative; isolation: isolate; padding: 18px 0; border-bottom: 1px solid var(--rule); scroll-margin-top: calc(var(--nav-h) + 20px); }
 .row::before { content: ''; position: absolute; z-index: -1; inset: 0 calc(var(--pad) * -0.5); background: var(--raise); opacity: 0;
@@ -218,14 +225,18 @@ html.th-on .threshold, .threshold.is-on { visibility: visible; pointer-events: a
 .row:hover .card-b { clip-path: ellipse(80% 72% at 50% 64%); }
 .row-name { font-weight: 600; font-size: clamp(22px, 2.3vw, 38px); line-height: 1.02; letter-spacing: -0.03em; }
 .row-note { margin-top: 8px; max-width: 52ch; font-size: 15px; line-height: 1.4; color: color-mix(in srgb, var(--bone) 70%, var(--ground)); }
-.row-grade { font-weight: 700; font-size: 22px; letter-spacing: -0.02em; color: var(--accent); }
-.row-crag { font-size: 15px; line-height: 1.3; }
-.row-year { font-variant-numeric: tabular-nums; }
+/* Field columns, by worksPage.fields[].style */
+.row-f-accent { font-weight: 700; font-size: 22px; letter-spacing: -0.02em; color: var(--accent); }
+.row-f-text { font-size: 15px; line-height: 1.3; }
+.row-f-mono { font-variant-numeric: tabular-nums; }
 .row-sub { display: none; margin-top: 8px; gap: 12px; color: var(--muted); }
 .index-outro { padding: 12svh var(--pad) 16svh; }
 
 /* ---------- phone ---------- */
 @media (max-width: 760px) {
+  .stats { padding: 9svh var(--pad) 6svh; }
+  .quote { padding: 7svh var(--pad) 11svh; }
+  .contact { padding: 13svh var(--pad) 10svh; }
   :root { --nav-h: 64px; --card-h: min(50svh, 112vw); }
   .nav-links, .nav-cta { display: none; }
   .nav-mark { margin-right: auto; }
@@ -235,17 +246,17 @@ html.th-on .threshold, .threshold.is-on { visibility: visible; pointer-events: a
   .facts { grid-template-columns: 1fr 1fr; margin-top: 26px; }
   .stats-row { grid-template-columns: 1fr; }
   .stat, .stat + .stat { padding: 22px 0 24px; border-left: 0; border-bottom: 1px solid var(--rule); }
-  .stat-num { font-size: clamp(76px, 26vw, 120px); }
+  .stat-num { font-size: calc(clamp(76px, 26vw, 120px) * max(var(--fit, 1), 0.8)); }
   .gallery-progress { display: none; }
   .foot { grid-template-columns: auto 1fr; }
   .foot-note { grid-column: 1 / -1; grid-row: 2; }
   .index-cols { display: none; }
   .row { grid-template-columns: 30px 92px minmax(0, 1fr); gap: 0 14px; align-items: start; }
   .row-thumb { height: 76px; }
-  .row-grade, .row-crag, .row-year { display: none; }
+  .row-f { display: none; }
   .row-sub { display: flex; }
   .row-note { font-size: 14px; }
-  .menu-panel { min-height: 84svh; }
+  .menu-panel { min-height: 100svh; }
 }
 
 /* ---------- reduced motion: same content, no travel ---------- */

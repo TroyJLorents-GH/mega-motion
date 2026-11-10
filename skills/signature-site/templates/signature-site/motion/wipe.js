@@ -11,6 +11,7 @@ const SHUT = 'inset(-25% 100% -25% 0%)';
 const OPEN = 'inset(-25% -4% -25% 0%)';
 
 export function createWipes(els, {W, mode, afterReveal}) {
+  let nextFree = 0;
   const recs = els.map((el) => ({el, text: el.textContent.replace(/\s+/g, ' ').trim(), played: false, tl: null, st: null}));
 
   function split(rec) {
@@ -40,10 +41,13 @@ export function createWipes(els, {W, mode, afterReveal}) {
       const inner = document.createElement('span');
       inner.className = 'wl-in';
       inner.textContent = ws.join(' ');
-      const block = document.createElement('span');
-      block.className = 'wl-block';
-      block.setAttribute('aria-hidden', 'true');
-      inner.append(block);
+      let block = null;
+      if (rec.el.dataset.wipe !== 'clip') {
+        block = document.createElement('span');
+        block.className = 'wl-block';
+        block.setAttribute('aria-hidden', 'true');
+        inner.append(block);
+      }
       line.append(inner);
       el.append(line);
       return {inner, block};
@@ -65,8 +69,8 @@ export function createWipes(els, {W, mode, afterReveal}) {
     const tl = gsap.timeline({paused: true});
     lines.forEach(({inner, block}, i) => {
       const at = i * W.lineStagger;
-      tl.fromTo(inner, {clipPath: SHUT}, {clipPath: OPEN, duration: W.line, ease: W.lineEase}, at)
-        .fromTo(block, {scaleX: 1}, {scaleX: 0, duration: W.block, ease: W.blockEase}, at + W.blockDelay);
+      tl.fromTo(inner, {clipPath: SHUT}, {clipPath: OPEN, duration: W.line, ease: W.lineEase}, at);
+      if (block) tl.fromTo(block, {scaleX: 1}, {scaleX: 0, duration: W.block, ease: W.blockEase}, at + W.blockDelay);
     });
     tl.eventCallback('onComplete', () => gsap.set(lines.map((l) => l.inner), {clearProps: 'clipPath'}));
     rec.tl = tl;
@@ -83,7 +87,10 @@ export function createWipes(els, {W, mode, afterReveal}) {
     if (rec.el.getBoundingClientRect().top < innerHeight * W.start) tl.timeScale(W.foldSpeed);
     rec.st = ScrollTrigger.create({...a, end: 'max', once: true, onEnter: () => afterReveal.then(() => {
       rec.played = true;
-      tl.play();
+      const now = performance.now() / 1000;
+      const wait = Math.max(0, nextFree - now);
+      nextFree = now + wait + (rec.el.dataset.wipe === 'clip' ? W.queueGap * 0.5 : W.queueGap);
+      gsap.delayedCall(wait, () => tl.play());
     })});
   }
 

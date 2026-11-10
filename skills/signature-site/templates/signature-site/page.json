@@ -1,1 +1,12 @@
-{"entry": "index.html", "kind": "scroll", "readable": "[data-read]", "maxPinned": 0.6}
+{
+  "entry": "index.html",
+  "kind": "scroll",
+  "moments": [
+    {"label": "intro", "load": true, "ms": 2200, "frames": 16},
+    {"label": "page change", "click": "a[data-to='works']:visible", "ms": 2400, "frames": 16},
+    {"label": "hero pointer", "move": [[0.15, 0.2], [0.75, 0.35], [0.3, 0.55]], "ms": 1800, "at": ["desktop"]},
+    {"label": "menu", "click": ".menu-btn", "ms": 1100},
+    {"label": "button hover", "scrollTo": "#contact", "hover": "#contact [data-roll]", "ms": 900, "at": ["desktop"]},
+    {"label": "card hover", "scrollTo": ".gallery-rail", "hover": ".gallery-rail a", "ms": 1100, "at": ["desktop"]}
+  ]
+}

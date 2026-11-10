@@ -39,7 +39,9 @@ node <plugin>/shared/web-studio/new_page.mjs <folder> --template signature-site/
 cd <folder> && npm install
 ```
 
-Put the user's name, mark (an SVG path), colours, chapters and images in `content.json`; then `node studio/web.mjs shots`, `check` and `film`, and have the `motion-critic` agent review the evidence. `TEMPLATE.md` in the template lists every file and what to change. Read `<plugin>/shared/web-studio/README.md` for the page contract (`?capture`, `window.__ready`, `window.ScrollTrigger`, `data-read`).
+A new brand is a new `content.json`, with no code edits. It holds the name and every word (aria labels included), the mark (an SVG path plus its solid `cores`), the palette, and the list of `works` with fields of the user's own shown through `{field}` placeholders. It also sets the second page's file name and columns (`worksPage`), the hero object (`home.hero.shape`: `rock`, `disc`, `orb`, `ring`, or `model` with a `.glb` path), and the art style (`art.surface`, `art.pattern`). Photos go in the folder and are named by each work's `image`; without one, a card is drawn in code under its `light` mood. `TEMPLATE.md` ("Make it yours") lists every key, how to add photos and a model, and how to rename the second page.
+
+Then run `node studio/web.mjs check`, `shots` and `moments`, look at every sheet and strip yourself, and have the `motion-critic` agent review the evidence. Pick content that fits the brand rather than the demo's: a record is not a boulder, and a cellist's cards are not rock. Read `<plugin>/shared/web-studio/README.md` for the page contract (`?capture`, `window.__ready`, `window.ScrollTrigger`, `data-read`).
 
 ## Red flags
 

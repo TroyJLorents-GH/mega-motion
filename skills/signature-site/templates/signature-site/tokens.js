@@ -34,7 +34,9 @@ export const WIPE = {
   blockDelay: 0.3,
   blockEase: 'power3.inOut',
   lineStagger: 0.08,
+  leadIntoMask: 0.18, // headings start wiping this long before the threshold hole finishes: the mask lands on a heading mid-wipe, never on an empty page
   foldSpeed: 1.7, // headings already on screen when a threshold opens: the mask was their reveal, so the wipe is a quick echo
+  queueGap: 0.07, // wipes that start together play in reading order, this far apart
   captureEnd: 0.62, // ?capture: scrubbed from top 90% to top 62%, so a scroll position is one frame
 };
 
@@ -50,7 +52,8 @@ export const HERO = {
   follow: 0.03, // exponential follow per 60 fps frame (50% at ~380 ms)
   tilt: [0.55, 0.32], // follow rotation in radians for a pointer at the edge (y axis, x axis)
   spin: 0.07, // idle turn, rad/s
-  trailFade: 0.6, // a painted stroke fades out over 600 ms
+  trailFade: 0.6, // a painted stroke fades out over 600 ms...
+  trailFloor: 0.55, // ...down to this, so the last path stays painted and the object never rests as a bare wireframe
   brush: 0.13, // brush radius, fraction of the canvas height
   sweep: 1.7, // the one autonomous stroke when no pointer has moved, seconds
   dpr: {desktop: 1.25, phone: 2},
@@ -58,7 +61,8 @@ export const HERO = {
 
 // The 1:1 horizontal gallery.
 export const GALLERY = {
-  colorEase: 'power2.out', // ground to bone across the pin
+  colorEase: 'power2.out', // ground to bone...
+  colorSpan: 0.2, // ...inside the first 20% of the pin, so no caption is read on mid-grey
   textFlip: [0.42, 0.5], // the text colour crosses over inside this part of the colour shift
 };
 
@@ -77,7 +81,7 @@ export const UI = {
 
 export const SCROLL = {
   lenisLerp: 0.1, // desktop wheel only
-  bioHold: 0.65, // the about chapter is sticky for this many viewport heights (its text is data-read)
+  bioHold: 0, // no reading hold: a pin with nothing changing is dead scroll; the bio reads in normal flow
   drift: 5, // the topographic layer behind the about text drifts this many % while it is read
 };
 

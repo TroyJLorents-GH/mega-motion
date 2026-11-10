@@ -379,13 +379,91 @@ async function check() {
   return failed ? 1 : 0;
 }
 
+// Timed strips of the moments a page declares in page.json "moments": the gestures a contact sheet can't show
+// (intro, page change, hover, menu, pointer). Live page (no ?capture), real time, frames labelled in ms.
+//   {"label": "page change", "click": "a[href='about.html']:visible", "ms": 2200, "at": ["desktop", "phone"]}
+//   keys: load (capture from navigation start), scrollTo (selector), wait (ms after ready), click | hover | move
+//   ([[x, y], ...] as viewport fractions), ms (capture length), frames (default 14), at (viewports, default both)
+async function moments() {
+  const list = cfg.moments || [];
+  if (!list.length) {
+    console.log('page.json has no "moments"; nothing to capture.');
+    return;
+  }
+  const server = await serve();
+  const {browser} = await launch();
+  const base = `http://127.0.0.1:${server.address().port}/`;
+  for (const m of list) {
+    for (const vname of m.at || Object.keys(VIEWPORTS)) {
+      const vp = VIEWPORTS[vname];
+      const context = await browser.newContext({viewport: vp, deviceScaleFactor: 1, hasTouch: vname === 'phone'});
+      const page = await context.newPage();
+      const slug = `${m.label.replace(/[^a-z0-9]+/gi, '-').toLowerCase()}-${vname}`;
+      const dir = path.join(REVIEW, `moment-${slug}`);
+      fs.rmSync(dir, {recursive: true, force: true});
+      fs.mkdirSync(dir, {recursive: true});
+      const url = base + (m.url || cfg.entry);
+      let t0;
+      if (m.load) {
+        t0 = Date.now();
+        page.goto(url).catch(() => {});
+        await page.waitForSelector('body', {timeout: 10000}).catch(() => {});
+      } else {
+        await page.goto(url);
+        await page.waitForFunction(() => window.__ready === true, null, {timeout: 60000}).catch(() => {});
+        await page.waitForTimeout(m.wait ?? 2200); // let the intro finish
+        if (m.scrollTo) {
+          await page.evaluate((s) => document.querySelector(s)?.scrollIntoView({block: 'center'}), m.scrollTo);
+          await page.waitForTimeout(1200);
+        }
+        if (m.move) await page.mouse.move(m.move[0][0] * vp.width, m.move[0][1] * vp.height);
+        t0 = Date.now();
+        if (m.click) page.locator(m.click).first().click({timeout: 3000}).catch(() => {});
+        else if (m.hover) page.locator(m.hover).first().hover({timeout: 3000}).catch(() => {});
+        else if (m.move) {
+          (async () => {
+            for (const [x, y] of m.move.slice(1)) await page.mouse.move(x * vp.width, y * vp.height, {steps: 24});
+          })().catch(() => {});
+        }
+      }
+      const ms = m.ms ?? 1600;
+      const n = m.frames ?? 14;
+      const files = [];
+      for (let i = 0; i < n; i++) {
+        const target = t0 + (ms * i) / (n - 1);
+        const wait = target - Date.now();
+        if (wait > 0) await page.waitForTimeout(wait);
+        const at = Date.now() - t0;
+        const raw = path.join(dir, `raw-${i}.png`);
+        try {
+          await page.screenshot({path: raw});
+        } catch {
+          continue; // mid-navigation: no frame to take
+        }
+        const f = path.join(dir, `${String(i).padStart(3, '0')}.png`);
+        await run(FFMPEG, ['-loglevel', 'error', '-y', '-i', raw, '-vf',
+          `drawtext=text='+${at} ms':x=12:y=12:fontsize=${vname === 'phone' ? 30 : 36}:fontcolor=white:box=1:boxcolor=black@0.7:boxborderw=8`, f]);
+        fs.rmSync(raw);
+        files.push(f);
+      }
+      await context.close();
+      const out = path.join(REVIEW, `moment-${slug}.png`);
+      if (files.length) await sheet(files, out, vname === 'phone' ? 220 : 360, Number(opt('cols', 7)));
+      console.log(`${m.label} (${vname}): ${files.length} frames over ${ms} ms → ${path.relative(process.cwd(), out)}`);
+    }
+  }
+  await browser.close();
+  server.close();
+}
+
 if (cmd === 'preview') {
   const server = await serve(Number(opt('port', 5174)));
   console.log(`open http://127.0.0.1:${server.address().port}/  (Ctrl+C to stop)`);
 } else if (cmd === 'shots') await shots();
 else if (cmd === 'film') await film();
 else if (cmd === 'check') process.exitCode = await check();
+else if (cmd === 'moments') await moments();
 else {
-  console.log('usage: node studio/web.mjs preview | shots | film | check');
+  console.log('usage: node studio/web.mjs preview | shots | film | check | moments');
   process.exitCode = 1;
 }

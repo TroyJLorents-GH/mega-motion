@@ -19,6 +19,7 @@ node studio/web.mjs preview    serve the page and print a URL
 node studio/web.mjs shots      labelled contact sheets down the page at 390 px (phone) and 1440 px (desktop)
 node studio/web.mjs check      automatic checks; writes out/review/checks.json and exits 1 on a fail
 node studio/web.mjs film       a recorded scripted run at both widths (out/run-phone.mp4, out/run-desktop.mp4)
+node studio/web.mjs moments    timed strips of the gestures a contact sheet can't show (intro, page change, hover, menu, pointer)
 ```
 
 Options: `--step 0.5` (viewport heights between shots), `--cols N`, `--seconds N` (film length), `--port N`.
@@ -33,6 +34,7 @@ Options: `--step 0.5` (viewport heights between shots), `--cols N`, `--seconds N
 - Mark text that must hold still while read with `data-read="a,b"`: the page-scroll fractions (0 to 1) during which it is read.
 - Interface pages expose `window.__tour` (an array of `{label, hold}`) and `window.__tourStep(i)`, which performs step `i` (a click, a drag, a toggle) the way a person would.
 - Respect `prefers-reduced-motion`: same content, no travel, no parallax, no scrubbed camera.
+- Declare `"moments"` in page.json for every gesture that matters: `{"label", "click" | "hover" | "move" | "load", "scrollTo", "ms", "frames", "at"}` (`move` is a list of `[x, y]` viewport fractions; `load` captures from navigation start; `at` limits viewports). `moments` records each one live, in real time, as a labelled strip (`out/review/moment-<label>-<width>.png`). A critic can't rate a page transition or a hover it never saw, so a template without moments caps its own review.
 
 ## The checks
 
@@ -47,4 +49,4 @@ Options: `--step 0.5` (viewport heights between shots), `--cols N`, `--seconds N
 | No page errors | no uncaught errors or console errors |
 | Reduced motion keeps content | with reduced motion, every word on the page becomes visible somewhere down the page |
 
-Then the `motion-critic` agent reviews `out/review/shots-phone.png`, `shots-desktop.png` and strips from the recordings. The checks prove it works; only the review says whether it is good.
+Then the `motion-critic` agent reviews `out/review/shots-phone.png`, `shots-desktop.png`, the `moment-*.png` strips and strips from the recordings. The checks prove it works; only the review says whether it is good.

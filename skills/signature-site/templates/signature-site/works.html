@@ -3,11 +3,12 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Climbs</title>
+<title></title>
 <meta name="description" content="">
 <link rel="icon" href="data:,">
-<!-- Brand threshold, first paint (see index.html). -->
-<script>(function(){var d=document.documentElement;if(/[?&]capture(=|&|$)/.test(location.search))return;d.classList.add('th-on');window.__thFailsafe=setTimeout(function(){d.classList.remove('th-on')},6000);})();</script>
+<!-- The second page: the full list of works (content.json "works", page text in "worksPage"). Rename this file if you
+     like; then set worksPage.file in content.json to the new name. Brand threshold, first paint: see index.html. -->
+<script>(function(){var d=document.documentElement;try{var x=new XMLHttpRequest();x.open('GET','content.json',false);x.send();var c=JSON.parse(x.responseText);window.__content=c;var p=c.palette||{};for(var k in p)d.style.setProperty('--'+k,p[k]);}catch(e){}if(/[?&]capture(=|&|$)/.test(location.search))return;d.classList.add('th-on');window.__thFailsafe=setTimeout(function(){d.classList.remove('th-on')},6000);})();</script>
 <link rel="stylesheet" href="node_modules/@fontsource/inter-tight/400.css">
 <link rel="stylesheet" href="node_modules/@fontsource/inter-tight/500.css">
 <link rel="stylesheet" href="node_modules/@fontsource/inter-tight/600.css">
@@ -16,11 +17,11 @@
 <link rel="stylesheet" href="node_modules/@fontsource/jetbrains-mono/500.css">
 <link rel="stylesheet" href="styles.css">
 <script type="importmap">
-{"imports": {"three": "./node_modules/three/build/three.module.js", "gsap": "./node_modules/gsap/index.js", "gsap/": "./node_modules/gsap/", "lenis": "./node_modules/lenis/dist/lenis.mjs"}}
+{"imports": {"three": "./node_modules/three/build/three.module.js", "three/": "./node_modules/three/", "gsap": "./node_modules/gsap/index.js", "gsap/": "./node_modules/gsap/", "lenis": "./node_modules/lenis/dist/lenis.mjs"}}
 </script>
 <script type="module" src="main.js"></script>
 </head>
-<body data-page="climbs">
+<body data-page="works">
 <div class="threshold" aria-hidden="true">
   <svg class="th-svg" width="100%" height="100%">
     <defs><mask id="th-mask" maskUnits="userSpaceOnUse" x="0" y="0" width="100%" height="100%"><rect width="100%" height="100%" fill="#fff"/><path class="th-hole" fill="#000"/></mask></defs>
@@ -33,10 +34,7 @@
 
 <header class="nav" data-theme="dark">
   <a class="nav-mark" href="index.html" data-aria="nav.homeLabel"><svg data-mark-svg aria-hidden="true"><path data-mark/></svg></a>
-  <nav class="nav-links" aria-label="Primary">
-    <a class="nav-link" href="index.html" data-c="nav.home"></a>
-    <a class="nav-link" href="climbs.html" data-c="nav.climbs"></a>
-  </nav>
+  <nav class="nav-links" data-aria="nav.primaryLabel"></nav>
   <a class="btn btn-small btn-ghost nav-cta" data-roll data-href="nav.contactHref" data-c="nav.contact"></a>
   <button class="menu-btn" type="button" aria-expanded="false" aria-controls="menu"><span class="menu-btn-label" data-c="nav.menu"></span><span class="menu-btn-icon" aria-hidden="true"><i></i><i></i></span></button>
 </header>
@@ -53,29 +51,23 @@
 <main id="main">
   <section class="index-hero" id="top" data-theme="dark">
     <canvas class="topo index-topo" aria-hidden="true"></canvas>
-    <p class="eyebrow" data-wipe data-c="climbsPage.eyebrow"></p>
-    <h1 class="index-title" data-wipe data-c="climbsPage.heading"></h1>
-    <p class="lede" data-c="climbsPage.intro"></p>
+    <p class="eyebrow" data-wipe data-c="worksPage.eyebrow"></p>
+    <h1 class="index-title" data-wipe data-c="worksPage.heading"></h1>
+    <p class="lede" data-c="worksPage.intro"></p>
   </section>
 
-  <section class="index-list" data-theme="dark" aria-labelledby="index-route-col">
-    <div class="index-cols mono">
-      <span data-wipe data-c="climbsPage.columns.no"></span>
-      <span></span>
-      <span id="index-route-col" data-wipe data-c="climbsPage.columns.route"></span>
-      <span class="col-d" data-wipe data-c="climbsPage.columns.grade"></span>
-      <span class="col-d" data-wipe data-c="climbsPage.columns.crag"></span>
-      <span class="col-d" data-wipe data-c="climbsPage.columns.year"></span>
-    </div>
+  <!-- Column labels and rows are built from content.json: worksPage.columns and worksPage.fields. -->
+  <section class="index-list" data-theme="dark" aria-labelledby="index-title-col">
+    <div class="index-cols mono"></div>
     <ol class="rows"></ol>
   </section>
 
   <section class="index-outro" data-theme="dark">
-    <p class="eyebrow" data-wipe data-c="climbsPage.outro.eyebrow"></p>
-    <h2 class="h2" data-wipe data-c="climbsPage.outro.heading"></h2>
+    <p class="eyebrow" data-wipe data-c="worksPage.outro.eyebrow"></p>
+    <h2 class="h2" data-wipe data-c="worksPage.outro.heading"></h2>
     <div class="actions">
-      <a class="btn btn-primary" data-roll data-href="climbsPage.outro.home.href" data-c="climbsPage.outro.home.label"></a>
-      <a class="btn btn-ghost" data-roll data-href="climbsPage.outro.contact.href" data-c="climbsPage.outro.contact.label"></a>
+      <a class="btn btn-primary" data-roll data-href="worksPage.outro.home.href" data-c="worksPage.outro.home.label"></a>
+      <a class="btn btn-ghost" data-roll data-href="worksPage.outro.contact.href" data-c="worksPage.outro.contact.label"></a>
     </div>
   </section>
 </main>

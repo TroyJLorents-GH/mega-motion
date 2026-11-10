@@ -1,5 +1,5 @@
 // Seeded gradient noise in 2D and 3D, plus fractal sums. Small, dependency-free, written for this template.
-// Same seed, same rock: every image on the site is reproducible.
+// Same seed, same image: every drawing on the site is reproducible.
 export function makeNoise(seed = 1) {
   const base = new Uint8Array(256);
   for (let i = 0; i < 256; i++) base[i] = i;

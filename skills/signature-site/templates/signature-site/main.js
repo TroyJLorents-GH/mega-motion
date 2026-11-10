@@ -9,7 +9,8 @@
 //   stroke, so a scroll position is always the same frame.
 // - Reduced motion: thresholds fade in 200 ms, no smooth scroll, no sticky travel, wipes at their end state, the hero
 //   is a still with the painted layer showing, the gallery is a grid. Every word stays.
-// Words, links and colours: content.json. Timings and easings: tokens.js. Drawings: art/.
+// Words, links, colours, the works list and the hero shape: content.json. Timings and easings: tokens.js. Drawings: art/.
+// Nothing brand-specific lives in this file: a new brand is a new content.json (plus its own images or model).
 import {gsap} from 'gsap';
 import {ScrollTrigger} from 'gsap/ScrollTrigger.js';
 import {CustomEase} from 'gsap/CustomEase.js';
@@ -17,8 +18,8 @@ import {EASE, CSS_EASE, THRESHOLD, WIPE, HERO, GALLERY, UI, SCROLL, PHONE} from 
 import {createThreshold, bindPageTransitions, arrivedByTransition} from './motion/threshold.js';
 import {createWipes} from './motion/wipe.js';
 import {rollButtons, createMenu} from './motion/ui.js';
-import {rockField, paintRock, paintTopo, drawTopo, MOODS} from './art/rock-art.js';
-import {createHeroRock} from './art/hero-rock.js';
+import {surfaceField, paintSurface, paintTopo, drawPattern, MOODS} from './art/card-art.js';
+import {createHeroObject} from './art/hero-object.js';
 
 const html = document.documentElement;
 clearTimeout(window.__thFailsafe);
@@ -56,9 +57,27 @@ let revealed;
 const afterReveal = new Promise((r) => (revealed = r));
 
 // ---------------- content ----------------
-const C = await fetch('./content.json').then((r) => r.json());
+const C = window.__content || (await fetch('./content.json').then((r) => r.json())); // read in the <head> for first paint
 const get = (path) => path.split('.').reduce((o, k) => (o == null ? o : o[k]), C);
 const P = C.palette;
+const WP = C.worksPage || {};
+const ART = {surface: 'stone', pattern: 'contours', route: false, ...C.art};
+// Page files: links in content.json may say "@works" or "@home" (plus an optional #anchor) instead of a file name,
+// so renaming the second page is one edit (worksPage.file).
+const FILES = {home: 'index.html', works: WP.file || 'works.html'};
+const resolveHref = (h) => {
+  if (typeof h !== 'string' || !h) return '#';
+  const m = h.match(/^@(\w+)(.*)$/);
+  return m && FILES[m[1]] ? FILES[m[1]] + m[2] : h;
+};
+// Mark links to a whole page (no anchor) with data-to, so the studio's moments can find them by role, not by file name.
+const setHref = (a, h) => {
+  const href = resolveHref(h);
+  a.setAttribute('href', href);
+  for (const [k, f] of Object.entries(FILES)) if (href === f) a.dataset.to = k;
+};
+// "{key}" in a content string is replaced by that field of a work: "{venue} · {year}".
+const fill = (tpl, w) => String(tpl).replace(/\{(\w+)\}/g, (_, k) => (w[k] == null ? '' : String(w[k]))).trim();
 for (const [k, v] of Object.entries(P)) html.style.setProperty(`--${k}`, v);
 html.style.setProperty('--house', CSS_EASE.house);
 html.style.setProperty('--roll', CSS_EASE.roll);
@@ -66,7 +85,7 @@ html.style.setProperty('--dur-roll', `${UI.roll}s`);
 html.style.setProperty('--roll-stagger', `${UI.rollStagger * 1000}ms`);
 html.style.setProperty('--dur-card', `${UI.card}s`);
 html.lang = C.meta.lang || 'en';
-document.title = PAGE === 'climbs' ? C.climbsPage.title : C.meta.title;
+document.title = (PAGE === 'works' && WP.title) || C.meta.title;
 q('meta[name="description"]')?.setAttribute('content', C.meta.description);
 
 // The brand threshold takes over the first-paint cover right away, so the mark is breathing while the rest loads.
@@ -77,17 +96,23 @@ for (const n of qa('[data-c]')) {
   const v = get(n.dataset.c);
   if (v != null) n.textContent = v;
 }
-for (const n of qa('[data-href]')) n.setAttribute('href', get(n.dataset.href) || '#');
+for (const n of qa('[data-href]')) setHref(n, get(n.dataset.href));
+for (const n of qa('a[href]:not([data-href])')) setHref(n, n.getAttribute('href'));
 for (const n of qa('[data-aria]')) n.setAttribute('aria-label', get(n.dataset.aria) || '');
 for (const p of qa('path[data-mark]')) p.setAttribute('d', C.mark.path);
 for (const s of qa('svg[data-mark-svg]')) s.setAttribute('viewBox', `0 0 ${C.mark.viewBox.join(' ')}`);
 q('.menu-email').href = `mailto:${C.menu.email}`;
 
-// Menu links.
+// Nav and menu links.
+for (const l of C.nav.links || []) {
+  const a = el('a', 'nav-link', l.label);
+  setHref(a, l.href);
+  q('.nav-links').append(a);
+}
 C.menu.links.forEach((l, i) => {
   const li = el('li');
   const a = el('a', 'menu-link');
-  a.href = l.href;
+  setHref(a, l.href);
   const line = el('span', 'ml-line');
   line.append(el('span', 'ml-in', l.label));
   a.append(el('span', 'mono ml-n', String(i + 1).padStart(2, '0')), line);
@@ -101,75 +126,121 @@ for (const a of qa('.nav-link, .menu-link')) {
 }
 
 // ---------------- page structure from content ----------------
-const climbs = C.climbs;
-const artJobs = []; // [canvasA, canvasB, seed]
-function mediaPair(parent, c, label) {
+// Each work: title, year, note, optional image (and image2, imageAlt), optional light mood, optional climber figure,
+// and any fields of its own ("venue", "label", ...) that the content strings use as {key}.
+const works = (C.works || []).map((w, i) => ({seed: 11 + i * 13, ...w, id: w.id || `work-${i + 1}`}));
+const artJobs = []; // [canvasA, canvasB, work]
+const imageLoads = []; // images decode under the brand screen, like the GL and the fonts
+function media(parent, w, label) {
+  if (w.image) {
+    const a = el('img', 'card-img card-a');
+    a.src = w.image;
+    a.alt = w.imageAlt || w.title;
+    // The hover layer: a second photo if given, otherwise the same photo as a duotone in the brand colours.
+    const b = el('div', `card-img card-b${w.image2 ? '' : ' duo'}`);
+    b.setAttribute('aria-hidden', 'true');
+    const bi = el('img');
+    bi.src = w.image2 || w.image;
+    bi.alt = '';
+    b.append(bi);
+    parent.append(a, b);
+    for (const img of [a, bi]) imageLoads.push(img.decode().catch(() => console.error(`content.json: image not found: ${img.getAttribute('src')}`)));
+    return;
+  }
   const a = el('canvas', 'card-img card-a');
   a.setAttribute('role', 'img');
-  a.setAttribute('aria-label', `${label} ${c.name}`);
+  a.setAttribute('aria-label', `${label} ${w.title}`.trim());
   const b = el('canvas', 'card-img card-b');
   b.setAttribute('aria-hidden', 'true');
   parent.append(a, b);
-  artJobs.push([a, b, c.seed, c]);
+  artJobs.push([a, b, w]);
 }
+const metaLine = (cls, parts, w) => {
+  const p = el('p', cls);
+  for (const t of parts || []) {
+    const v = fill(t, w);
+    if (v) p.append(el('span', '', v));
+  }
+  return p;
+};
 
 if (PAGE === 'home') {
   const A = C.home.about;
+  q('.facts').style.setProperty('--n', A.facts.length);
   for (const f of A.facts) {
     const d = el('div');
     const dt = el('dt', 'mono', f.label);
-    dt.dataset.wipe = '';
+    dt.dataset.wipe = 'clip';
     d.append(dt, el('dd', '', f.value));
     q('.facts').append(d);
   }
+  const statsRow = q('.stats-row');
+  statsRow.style.setProperty('--n', C.home.stats.items.length);
+  // Long figures shrink to fit their column: the widest value (suffix counts at its 0.44 size) sets one size for all.
+  const widest = Math.max(...C.home.stats.items.map((s) => String(s.value).length + 0.44 * String(s.suffix || '').length));
+  statsRow.style.setProperty('--fit', Math.min(1, 2.6 / widest).toFixed(3));
   for (const s of C.home.stats.items) {
     const li = el('li', 'stat');
     const num = el('span', 'stat-num');
-    // Final values only: a grade is a fact, not a counter. The number arrives with the house wipe.
+    // Final values only: a figure is a fact, not a counter. The number arrives with the house wipe.
     num.append(el('span', 'n', String(s.value)));
     if (s.suffix) num.append(el('span', 'sfx', s.suffix));
     num.dataset.wipe = '';
     const label = el('p', 'mono stat-label', s.label);
-    label.dataset.wipe = '';
+    label.dataset.wipe = 'clip';
     li.append(num, label);
     q('.stats-row').append(li);
   }
-  const featured = climbs.filter((c) => c.featured);
-  featured.forEach((c, i) => {
+  const G = C.home.gallery;
+  let featured = works.filter((w) => w.featured);
+  if (!featured.length) featured = works.slice(0, 6);
+  featured.forEach((w, i) => {
     const li = el('li', 'card');
     const a = el('a', 'card-link');
-    a.href = `climbs.html#${c.id}`;
-    const media = el('div', 'card-media');
-    mediaPair(media, c, C.home.gallery.cardLabel);
+    a.href = `${FILES.works}#${w.id}`;
+    const m = el('div', 'card-media');
+    media(m, w, G.cardLabel || '');
     const ov = el('div', 'card-overlay mono');
     ov.setAttribute('aria-hidden', 'true');
-    ov.append(el('span', '', C.home.gallery.cardCta), el('b', '', '→'));
-    media.append(ov);
+    ov.append(el('span', '', G.cardCta), el('b', '', '→'));
+    m.append(ov);
     const meta = el('div', 'card-meta');
-    const sub = el('p', 'mono card-sub');
-    sub.append(el('span', '', c.grade), el('span', '', `${c.crag}, ${c.code}`), el('span', '', String(c.year)));
-    meta.append(el('span', 'mono card-no', String(i + 1).padStart(2, '0')), el('h3', 'card-name', c.name), sub);
-    a.append(media, meta);
+    meta.append(el('span', 'mono card-no', String(i + 1).padStart(2, '0')), el('h3', 'card-name', w.title),
+      metaLine('mono card-sub', G.cardMeta || ['{year}'], w));
+    a.append(m, meta);
     li.append(a);
     q('.gallery-rail').append(li);
   });
   q('.gp-total').textContent = String(featured.length).padStart(2, '0');
 }
 
-if (PAGE === 'climbs') {
-  climbs.forEach((c, i) => {
+if (PAGE === 'works') {
+  // Columns: number, image, title, then one per worksPage.fields entry ({label, value, style: accent | text | mono}).
+  const fields = WP.fields || [{label: '', value: '{year}', style: 'mono'}];
+  const width = {accent: 'minmax(84px, max-content)', mono: 'minmax(60px, max-content)', text: 'minmax(0, 1fr)'};
+  q('.index-list').style.setProperty('--cols', fields.map((f) => width[f.style] || width.text).join(' '));
+  const cols = q('.index-cols');
+  const head = (text, cls = '') => {
+    const s = el('span', cls, text);
+    cols.append(s);
+    return s;
+  };
+  head(WP.columns?.no || '');
+  head('');
+  head(WP.columns?.title || '').id = 'index-title-col';
+  for (const f of fields) head(f.label, 'col-d');
+  works.forEach((w, i) => {
     const li = el('li', 'row');
-    li.id = c.id;
+    li.id = w.id;
     const thumb = el('div', 'row-thumb');
-    mediaPair(thumb, c, C.climbsPage.thumbLabel);
+    media(thumb, w, WP.thumbLabel || '');
     const main = el('div', 'row-main');
-    const name = el('h2', 'row-name', c.name);
-    name.dataset.wipe = '';
-    const sub = el('p', 'mono row-sub');
-    sub.append(el('span', '', c.grade), el('span', '', c.crag), el('span', '', String(c.year)));
-    main.append(name, el('p', 'row-note', c.note), sub);
-    li.append(el('span', 'mono row-no', String(i + 1).padStart(2, '0')), thumb, main, el('span', 'row-grade', c.grade),
-      el('span', 'row-crag', `${c.crag}, ${c.country}`), el('span', 'mono row-year', String(c.year)));
+    const name = el('h2', 'row-name', w.title);
+    main.append(name);
+    if (w.note) main.append(el('p', 'row-note', w.note));
+    main.append(metaLine('mono row-sub', WP.rowMeta || fields.map((f) => f.value), w));
+    li.append(el('span', 'mono row-no', String(i + 1).padStart(2, '0')), thumb, main);
+    for (const f of fields) li.append(el('span', `row-f row-f-${f.style || 'text'}${f.style === 'mono' ? ' mono' : ''}`, fill(f.value, w)));
     q('.rows').append(li);
   });
 }
@@ -219,32 +290,33 @@ bindPageTransitions(th, {T: THRESHOLD, beforeLeave: () => {
 const artPalette = {ground: P.ground, bone: P.bone, accent: P.accent};
 const fieldCache = new Map();
 async function paintArt() {
-  for (const [a, b, seed, climb] of artJobs) {
+  for (const [a, b, w] of artJobs) {
     const tall = PAGE === 'home';
-    const [w, h] = tall ? [300, 396] : [264, 186];
-    a.width = b.width = w;
-    a.height = b.height = h;
-    const key = `${seed}:${w}x${h}`;
-    if (!fieldCache.has(key)) fieldCache.set(key, rockField(seed, Math.round(w / 2), Math.round(h / 2)));
+    const [cw, ch] = tall ? [300, 396] : [264, 186];
+    a.width = b.width = cw;
+    a.height = b.height = ch;
+    const key = `${w.seed}:${cw}x${ch}`;
+    if (!fieldCache.has(key)) fieldCache.set(key, surfaceField(w.seed, Math.round(cw / 2), Math.round(ch / 2), {style: ART.surface}));
     const f = fieldCache.get(key);
-    paintRock(a, f, artPalette, {...(MOODS[climb?.light] || MOODS.noon), climber: climb?.climber});
-    paintTopo(b, f, artPalette);
+    paintSurface(a, f, artPalette, MOODS[w.light] || MOODS.noon, w.climber || null);
+    paintTopo(b, f, artPalette, {route: ART.route});
     await sleep(0); // let the brand mark keep breathing
   }
 }
-const topoJobs = [
+// Section backgrounds: content.json art.pattern ("contours", "rings" or "none").
+const patternJobs = [
   ['.about-topo', {seed: 5, color: P.accent, alpha: 0.2, levels: 18, index: P.accent}],
   ['.contact-topo', {seed: 9, color: P.accent, alpha: 0.32, levels: 16}],
   ['.index-topo', {seed: 13, color: P.accent, alpha: 0.22, levels: 18}],
 ];
 const paintTopos = () => {
-  for (const [sel, o] of topoJobs) {
+  for (const [sel, o] of patternJobs) {
     const c = q(sel);
-    if (c) drawTopo(c, o);
+    if (c) drawPattern(c, {pattern: ART.pattern, ...o});
   }
 };
 
-// ---------------- 1. hero: the 3D rock, sticky 1 vh, full bleed to card ----------------
+// ---------------- 1. hero: the 3D object, sticky 1 vh, full bleed to card ----------------
 let hero = null;
 const heroGeom = () => {
   const frameEl = q('.hero-frame');
@@ -274,15 +346,19 @@ function applyHero(p) {
 async function setupHero() {
   const canvas = q('.hero-canvas');
   const mode = RM ? 'still' : CAPTURE ? 'capture' : 'live';
+  const HC = C.home.hero;
+  const opts = {palette: P, H: HERO, mode, phone: isPhone() || !FINE, shape: HC.shape || 'rock', seed: HC.seed ?? 11,
+    model: HC.model, rotation: HC.rotation};
   try {
-    hero = createHeroRock(canvas, {palette: P, H: HERO, mode, phone: isPhone() || !FINE});
+    hero = await createHeroObject(canvas, opts);
   } catch (err) {
-    console.warn('hero: WebGL unavailable, using the drawn fallback', err);
-    hero = null;
+    // A model that will not load (wrong path, bad file) is reported, and the procedural fallback shape stands in.
+    console.error(`hero: could not load the model "${HC.model}" (${err.message}); showing "${HC.fallback || 'orb'}" instead`);
+    hero = await createHeroObject(canvas, {...opts, shape: HC.fallback || 'orb', rotation: null}).catch(() => null);
   }
   if (!hero) {
     q('.hero').classList.add('no-gl');
-    drawTopo(q('.hero-fallback'), {seed: 2, color: P.accent, alpha: 0.5, levels: 20});
+    drawPattern(q('.hero-fallback'), {pattern: ART.pattern === 'none' ? 'contours' : ART.pattern, seed: 2, color: P.accent, alpha: 0.5, levels: 20});
     return;
   }
   const g = heroGeom();
@@ -295,6 +371,12 @@ async function setupHero() {
 if (PAGE === 'home') await setupHero();
 await paintArt();
 paintTopos();
+await Promise.race([Promise.all(imageLoads), sleep(THRESHOLD.readyTimeout * 1000)]);
+// ?capture (the studio): a second page that content.json names but that is not there fails the check, loudly.
+if (CAPTURE && PAGE === 'home') {
+  const ok = await fetch(FILES.works, {cache: 'no-store'}).then((r) => r.ok).catch(() => false);
+  if (!ok) console.error(`content.json worksPage.file is "${FILES.works}", but there is no such file next to index.html`);
+}
 
 const wipes = createWipes(qa('[data-wipe]'), {W: WIPE, mode: RM ? 'still' : CAPTURE ? 'capture' : 'live', afterReveal});
 
@@ -330,21 +412,20 @@ if (PAGE === 'home' && !RM) {
   ScrollTrigger.addEventListener('refreshInit', measure);
   const colorEase = gsap.parseEase(GALLERY.colorEase);
   const [f0, f1] = GALLERY.textFlip;
-  const mixHex = (a, b, t) => {
-    const pa = a.match(/\w\w/g).map((x) => parseInt(x, 16));
-    const pb = b.match(/\w\w/g).map((x) => parseInt(x, 16));
-    return `rgb(${pa.map((v, i) => Math.round(v + (pb[i] - v) * t)).join(',')})`;
-  };
+  const rgbOf = (c) => (Array.isArray(c) ? c : c.replace('#', '').match(/\w\w/g).map((x) => parseInt(x, 16)));
+  const mixRgb = (a, b, t) => rgbOf(a).map((v, i) => Math.round(v + (rgbOf(b)[i] - v) * t));
+  const mixHex = (a, b, t) => `rgb(${mixRgb(a, b, t).join(',')})`;
+  const subOnLight = mixRgb(P.muted, P.ground, 0.37); // secondary text on the bone ground
   const nav = q('.nav');
   let lastIdx = -1;
   const paint = (p) => {
     rail.style.transform = `translate3d(${(-p * travel).toFixed(2)}px,0,0)`;
-    const c = colorEase(p);
+    const c = colorEase(Math.min(1, p / GALLERY.colorSpan));
     bg.style.opacity = c.toFixed(4);
     // Snap, never mix: a half-way text colour on a half-way background is grey on grey.
     const t = c > (f0 + f1) / 2 ? 1 : 0;
     track.style.setProperty('--g-ink', mixHex(P.bone, P.ground, t));
-    track.style.setProperty('--g-sub', mixHex(P.muted, '#5D6168', t));
+    track.style.setProperty('--g-sub', mixHex(P.muted, subOnLight, t));
     bar.style.transform = `scaleX(${p.toFixed(4)})`;
     const idx = Math.min(n - 1, Math.round(p * (n - 1)));
     if (idx !== lastIdx) {
@@ -422,9 +503,9 @@ if (covered) {
   // Headings above the fold start their wipe while the hole is opening (expo.in puts most of the opening at the
   // end), so the new page is readable as the threshold finishes instead of ~0.6 s after it.
   const dur = arriving ? THRESHOLD.reveal : THRESHOLD.introReveal;
-  const early = setTimeout(revealed, dur * 0.2 * 1000);
+  const lead = setTimeout(revealed, Math.max(0, dur - WIPE.leadIntoMask) * 1000);
   await th.reveal(dur);
-  clearTimeout(early);
+  clearTimeout(lead);
 }
 lenis?.start();
 revealed();

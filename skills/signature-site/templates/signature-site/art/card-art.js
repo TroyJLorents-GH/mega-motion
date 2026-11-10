@@ -1,8 +1,8 @@
-// Procedural imagery: no photographs anywhere on the site. Everything is drawn from seeded noise.
-//   rockField(seed, gw, gh)        a height field (0..1) for one rock face: warped fbm, strata, ridges and cracks
-//   paintRock(canvas, field, pal)  the face as a lit stone panel (the card's first image)
-//   paintTopo(canvas, field, pal)  the same face as a topographic survey with the route drawn on (the second image)
-//   drawTopo(canvas, opts)         contour lines for section backgrounds (vector strokes, crisp at any size)
+// Procedural imagery, used wherever a work has no "image" of its own. Everything is drawn from seeded noise.
+//   surfaceField(seed, gw, gh)        a height field (0..1): warped fbm, strata, ridges and cracks
+//   paintSurface(canvas, field, pal)  the field as a lit, textured panel graded by a light mood (a card's first image)
+//   paintTopo(canvas, field, pal)     the same field as a contour survey, optionally with a route (the second image)
+//   drawPattern(canvas, opts)         section backgrounds: "contours" or "rings" (vector strokes, crisp at any size)
 import {makeNoise} from './noise.js';
 
 const rgb = (hex) => {
@@ -12,11 +12,14 @@ const rgb = (hex) => {
 const mixc = (a, b, t) => [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t, a[2] + (b[2] - a[2]) * t];
 const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
 
-export function rockField(seed, gw, gh, scale = 2.6) {
+// style (content.json art.surface): "stone" (strata, ledges, cracks) or "grain" (long wavy fibres, like the
+// spruce top of an instrument, brushed metal or combed sand).
+export function surfaceField(seed, gw, gh, {style = 'stone', scale = 2.6} = {}) {
+  if (style === 'grain') return grainField(seed, gw, gh, scale);
   const N = makeNoise(seed);
   const f = new Float32Array(gw * gh);
   const k = scale / Math.max(gw, gh);
-  const ang = -0.35 + ((seed * 0.6180339) % 1) * 0.7; // bedding planes: near horizontal, a little different per rock
+  const ang = -0.35 + ((seed * 0.6180339) % 1) * 0.7; // bedding planes: near horizontal, a little different per seed
   const ca = Math.cos(ang);
   const sa = Math.sin(ang);
   const steps = 7 + (seed % 5);
@@ -50,7 +53,40 @@ export function rockField(seed, gw, gh, scale = 2.6) {
   return {f, gw, gh, seed};
 }
 
-// Stone tints: each climb's seed picks one, so the cards read as different crags.
+function grainField(seed, gw, gh, scale) {
+  const N = makeNoise(seed);
+  const f = new Float32Array(gw * gh);
+  const k = scale / Math.max(gw, gh);
+  const ang = (((seed * 0.6180339) % 1) - 0.5) * 0.5; // the fibres run near vertical, a little different per seed
+  const ca = Math.cos(ang);
+  const sa = Math.sin(ang);
+  const freq = 2.6 + (seed % 4) * 0.35;
+  let lo = Infinity;
+  let hi = -Infinity;
+  for (let j = 0; j < gh; j++) {
+    for (let i = 0; i < gw; i++) {
+      const x0 = i * k + seed * 3.7;
+      const y0 = j * k - seed * 1.9;
+      const x = x0 * ca - y0 * sa;
+      const y = x0 * sa + y0 * ca;
+      // Warp stretched along the fibres, so the lines wander slowly and bunch up in places.
+      const w = N.fbm2(x * 0.7 + 4.1, y * 0.16 - 2.3, 4) * 2.4 + N.fbm2(x * 1.9, y * 0.5 + 7, 3) * 0.35;
+      // Smooth growth lines (no hard edges, so the lighting stays soft): narrow late wood, wide early wood.
+      const ring = Math.pow(0.5 + 0.5 * Math.cos((x + w * 0.55) * freq * Math.PI * 2), 2.2);
+      let h = ring * 0.16 + N.fbm2(x * 0.9, y * 0.9, 4) * 0.42;
+      h += 0.035 * N.n2(x * 16, y * 1.1); // fine streaks along the fibres
+      h += 0.012 * N.n2(x * 9, y * 9);
+      f[j * gw + i] = h;
+      if (h < lo) lo = h;
+      if (h > hi) hi = h;
+    }
+  }
+  const d = hi - lo || 1;
+  for (let i = 0; i < f.length; i++) f[i] = (f[i] - lo) / d;
+  return {f, gw, gh, seed, relief: 0.22, tint: 0.62, soft: true}; // a polished surface: colour from the grain, little relief
+}
+
+// Surface tints for works without a light mood: the seed picks one, so the cards read as different places.
 const STONES = [[168, 156, 138], [140, 142, 146], [176, 140, 100], [120, 128, 142], [158, 150, 128], [132, 120, 112]];
 
 function sampler({f, gw, gh}) {
@@ -69,15 +105,16 @@ function sampler({f, gw, gh}) {
   };
 }
 
-// A lit stone face. Light from the upper left; the deepest cracks pick up a little of the accent, like cold shade.
-export function paintRock(canvas, field, pal, mood = MOODS.noon) {
+// A lit surface. Light from the upper left; the deepest cracks pick up a little of the accent, like cold shade.
+// opts: a light mood from MOODS, plus figure: [x, y, facing] to draw the small figure (opt-in, content "climber").
+export function paintSurface(canvas, field, pal, mood = MOODS.noon, figure = null) {
   const W = canvas.width;
   const H = canvas.height;
   const ctx = canvas.getContext('2d');
   const img = ctx.createImageData(W, H);
   const d = img.data;
   const S = sampler(field);
-  const {gw, gh} = field;
+  const {gw, gh, relief = 1, tint = 0.35, soft = false} = field;
   const ground = rgb(pal.ground);
   const accent = rgb(pal.accent);
   const bone = rgb(pal.bone);
@@ -99,11 +136,14 @@ export function paintRock(canvas, field, pal, mood = MOODS.noon) {
       const h = S(u, v);
       const dx = S(u + 0.8, v) - S(u - 0.8, v);
       const dy = S(u, v + 0.8) - S(u, v - 0.8);
-      const shade = clamp(0.52 + (dx * 0.8 + dy) * 13);
-      const tone = clamp(h * 0.35 + shade * 0.85 - 0.12);
+      // relief: how much the slope lights the surface (stone 1); tint: how much the height itself colours it.
+      const shade = clamp(0.52 + (dx * 0.8 + dy) * 13 * relief);
+      const tone = clamp(h * tint + shade * (1.2 - tint) - 0.12);
       let c = tone < 0.5 ? mixc(deep, mid, tone / 0.5) : mixc(mid, light, (tone - 0.5) / 0.5);
       // The light of the day: lit faces take the key colour, shadows take the fill colour.
-      c = mixc(c, tone > 0.5 ? mixc(c, mood.key, 0.9) : mixc(c, mood.fill, 0.9), mood.grade);
+      // Stone switches hard between key and fill (crisp ledges); a polished surface crossfades.
+      const lit = soft ? clamp((tone - 0.3) / 0.4) : tone > 0.5 ? 1 : 0;
+      c = mixc(c, mixc(mixc(c, mood.fill, 0.9), mixc(c, mood.key, 0.9), lit), mood.grade);
       if (mood.spot) {
         const sx2 = x / W - mood.spot[0];
         const sy2 = (y / H - mood.spot[1]) * (H / W);
@@ -138,7 +178,7 @@ export function paintRock(canvas, field, pal, mood = MOODS.noon) {
     g.addColorStop(1, 'rgba(240,238,230,0)');
     ctx.fillStyle = g;
     ctx.fillRect(0, 0, W, H);
-    ctx.fillStyle = '#F2EFE8';
+    ctx.fillStyle = pal.bone;
     ctx.beginPath();
     ctx.arc(mx * W, my * H, mr * W, 0, Math.PI * 2);
     ctx.fill();
@@ -161,10 +201,10 @@ export function paintRock(canvas, field, pal, mood = MOODS.noon) {
       ctx.stroke();
     }
   }
-  if (mood.climber) drawClimber(ctx, W, H, mood.climber, mood.spot ? '#F2EFE8' : '#0B0C10');
+  if (figure) drawFigure(ctx, W, H, figure, mood.spot ? pal.bone : '#0B0C10');
 }
 
-// Light per climb (content.json "light"): what the day, the hour and the place looked like. Colours are RGB.
+// Light per work (content.json "light"): what the hour and the place looked like. Colours are RGB.
 export const MOODS = {
   noon: {stone: [190, 182, 166], key: [255, 246, 228], fill: [96, 104, 120], grade: 0.25},
   dusk: {stone: [186, 128, 84], key: [255, 176, 110], fill: [92, 52, 70], grade: 0.5, sky: ['#FF9A5C', 'rgba(0,0,0,0)', 0.35]},
@@ -176,8 +216,9 @@ export const MOODS = {
   lamp: {stone: [170, 150, 126], key: [255, 236, 200], fill: [20, 20, 28], grade: 0.5, spot: [0.46, 0.4, 0.2]},
 };
 
-// A small climber on the wall: proof that a person did this. Arms reach up-left, one foot high, rope trailing down.
-function drawClimber(ctx, W, H, [u, v, lean = 1], color) {
+// A small figure on the surface (opt-in per work with "climber": [x, y, facing]): arms reach up-left, one foot
+// high, a rope trailing down. Proof that a person did this.
+function drawFigure(ctx, W, H, [u, v, lean = 1], color) {
   const s = H * 0.085;
   const x = u * W;
   const y = v * H;
@@ -257,8 +298,8 @@ function strokeContours(ctx, field, W, H, {levels, line, index, lw, every = 5}) 
   }
 }
 
-// The same face as a climbing topo: bone paper, accent contours, the route in ink with its bolts.
-export function paintTopo(canvas, field, pal) {
+// The same field as a survey: bone paper, accent contours and, if route is set, a line in ink with its stops.
+export function paintTopo(canvas, field, pal, {route = false} = {}) {
   const W = canvas.width;
   const H = canvas.height;
   const ctx = canvas.getContext('2d');
@@ -266,6 +307,7 @@ export function paintTopo(canvas, field, pal) {
   ctx.fillRect(0, 0, W, H);
   const s = Math.max(1, W / 300);
   strokeContours(ctx, field, W, H, {levels: 22, line: pal.accent, index: pal.accent, lw: 1.1 * s});
+  if (!route) return;
   // The route: a seeded line that wanders up the face.
   const N = makeNoise(field.seed + 101);
   const pts = [];
@@ -293,15 +335,54 @@ export function paintTopo(canvas, field, pal) {
   ctx.stroke();
 }
 
-// Contour lines for a section background, sized to the canvas's CSS box.
-export function drawTopo(canvas, {seed = 3, color, alpha = 1, levels = 16, cell = 16, scale = 2.4, lw = 1, index}) {
+// A section background, sized to the canvas's CSS box. pattern: "contours" (a contour map), "rings" (concentric,
+// slightly wavering circles from a seeded centre: ripples, grooves, sound) or "none".
+export function drawPattern(canvas, {pattern = 'contours', ...o}) {
   const r = canvas.getBoundingClientRect();
   if (r.width < 2 || r.height < 2) return;
   const dpr = Math.min(window.devicePixelRatio || 1, 2);
-  const W = Math.round(r.width * dpr);
-  const H = Math.round(r.height * dpr);
-  canvas.width = W;
-  canvas.height = H;
+  canvas.width = Math.round(r.width * dpr);
+  canvas.height = Math.round(r.height * dpr);
+  canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+  if (pattern === 'rings') drawRings(canvas, r, dpr, o);
+  else if (pattern !== 'none') drawTopo(canvas, r, dpr, o);
+}
+
+function drawRings(canvas, r, dpr, {seed = 3, color, alpha = 1, levels = 16, lw = 1, index}) {
+  const W = canvas.width;
+  const H = canvas.height;
+  const N = makeNoise(seed);
+  const ctx = canvas.getContext('2d');
+  // The centre sits off to one side (seeded), so the rings sweep across the section rather than target it.
+  const cx = W * (0.5 + 0.62 * (N.rand() < 0.5 ? -1 : 1) * (0.6 + 0.4 * N.rand()));
+  const cy = H * (0.25 + 0.5 * N.rand());
+  const far = Math.hypot(Math.max(cx, W - cx), Math.max(cy, H - cy));
+  const step = far / (levels * 2.2);
+  ctx.globalAlpha = alpha;
+  ctx.lineCap = 'round';
+  for (let k = 1; k * step < far; k++) {
+    const major = k % 4 === 0;
+    ctx.strokeStyle = major ? index || color : color;
+    ctx.lineWidth = (major ? 2.1 : 1) * lw * dpr;
+    ctx.beginPath();
+    const R = k * step;
+    const seg = Math.max(48, Math.round(R / (6 * dpr)));
+    for (let i = 0; i <= seg; i++) {
+      const a = (i / seg) * Math.PI * 2;
+      const w = 1 + 0.035 * N.fbm2(Math.cos(a) * 1.4 + k * 0.08, Math.sin(a) * 1.4 + k * 0.05, 3);
+      const x = cx + Math.cos(a) * R * w;
+      const y = cy + Math.sin(a) * R * w;
+      if (i) ctx.lineTo(x, y);
+      else ctx.moveTo(x, y);
+    }
+    ctx.stroke();
+  }
+  ctx.globalAlpha = 1;
+}
+
+function drawTopo(canvas, r, dpr, {seed = 3, color, alpha = 1, levels = 16, cell = 16, scale = 2.4, lw = 1, index}) {
+  const W = canvas.width;
+  const H = canvas.height;
   const gw = Math.max(8, Math.ceil(r.width / cell));
   const gh = Math.max(8, Math.ceil(r.height / cell));
   const N = makeNoise(seed);
@@ -322,7 +403,6 @@ export function drawTopo(canvas, {seed = 3, color, alpha = 1, levels = 16, cell 
   }
   for (let i = 0; i < f.length; i++) f[i] = (f[i] - lo) / (hi - lo || 1);
   const ctx = canvas.getContext('2d');
-  ctx.clearRect(0, 0, W, H);
   ctx.globalAlpha = alpha;
   strokeContours(ctx, {f, gw, gh}, W, H, {levels, line: color, index: index || color, lw: lw * dpr, every: 4});
   ctx.globalAlpha = 1;
