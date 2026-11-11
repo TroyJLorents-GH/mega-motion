@@ -61,6 +61,9 @@ Edit `content.json` and drop your files into the folder. Nothing else needs to c
 - **`home.about`**: `eyebrow`, `heading`, `body`, `facts` (`[{label, value}]`, any count).
 - **`home.stats`**: `eyebrow`, `items` (`[{value, suffix, label}]`, any count). Long figures shrink to fit, all at one size.
 - **`home.quote`**: `text`, `by`, `where`.
+- **`art.photoGrade`**: `"duotone"` (default) maps every photo to the palette, shadows to the ground colour and highlights to bone, so the accent stays the only colour and a card's hover returns the photo in its own colour. `"none"` keeps photos as shot (the hover then shows an accent duotone).
+- **`worksPage.lead`** (a work id; default the first work with a photo) and **`worksPage.leadCaption`** (two `{field}` strings): the second page opens onto that photograph beside its heading.
+- **`menu.now`**: one line in the menu about what the person is doing now. With any photos in the content, the menu shows a preview photo per link (`menu.links[].image`, else the About portrait and the works' photos in turn) that swaps on hover.
 - **`home.about.image`** (optional): a portrait of the person, revealed by the house gesture (a brand block retracting off it). `imageAlt` is its alt text, `imageFocus` its CSS object-position (for example `"40% 35%"`). A personality site with no image of the person reads as a template, so add one when you can.
 - **`home.gallery`**: `eyebrow`, `heading`, `cardMeta` (the line under each card: a list of strings using `{field}` placeholders, for example `["{kind}", "{where}", "{year}"]`), `cardCta` (the hover overlay) and `cardLabel` (the aria-label prefix of drawn images).
 - **`home.contact`**: `eyebrow`, `heading`, `body`, `primary` and `secondary` (`{label, href}`).

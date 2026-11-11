@@ -11,7 +11,7 @@ export const CSS_EASE = {house: 'cubic-bezier(0.65, 0.05, 0, 1)', roll: 'cubic-b
 // The brand threshold: the intro, and every page change. Seconds.
 export const THRESHOLD = {
   ease: 'expo.in', // accelerating in: almost nothing for the first half, most of the opening at the end
-  introMinHold: 0.6, // the intro brand screen holds at least this long from navigation start
+  introMinHold: 0.2, // the intro holds only for real loading: long enough to register the mark, never a fixed wait
   introReveal: 0.38, // the mark-shaped hole opens past the viewport
   cover: 0.37, // page change: the mark slab grows from the click point until the screen is solid
   holdMin: 0.12, // then holds while the next page is fetched (prefetched on hover, so usually already in): at least...

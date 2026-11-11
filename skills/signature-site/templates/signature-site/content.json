@@ -34,6 +34,7 @@
       {"label": "Contact", "href": "@home#contact"}
     ],
     "note": "Granada, Spain",
+    "now": "Now: projecting a new line in Margalef, spring 2026",
     "email": "hello@kaimoreno.example"
   },
   "home": {
@@ -84,6 +85,8 @@
     }
   },
   "worksPage": {
+    "lead": "the-long-exhale",
+    "leadCaption": ["{title}", "{grade} · {crag}"],
     "file": "works.html",
     "title": "Climbs. Kai Moreno.",
     "eyebrow": "Index · 2014 to 2024",

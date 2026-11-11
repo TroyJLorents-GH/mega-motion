@@ -119,6 +119,32 @@ C.menu.links.forEach((l, i) => {
   li.append(a);
   q('.menu-links').append(li);
 });
+// Menu preview: each link shows a photograph (menu.links[].image, else the About portrait and the works' photos in
+// turn). Hover or focus swaps it with the house clip. No photos anywhere: no preview, the links take the panel.
+{
+  const pool = [C.home?.about?.image, ...(C.works || []).map((w) => w.image)].filter(Boolean);
+  if (pool.length) {
+    const box = el('div', 'menu-preview graded');
+    box.setAttribute('aria-hidden', 'true');
+    const imgs = C.menu.links.map((l, i) => {
+      const im = el('img');
+      im.src = l.image || pool[i % pool.length];
+      im.alt = '';
+      im.decoding = 'async';
+      box.append(im);
+      return im;
+    });
+    imgs[0].classList.add('on');
+    q('.menu-panel').append(box);
+    q('.menu-panel').classList.add('has-preview');
+    qa('.menu-link').forEach((a, i) => {
+      const show = () => imgs.forEach((im, k) => im.classList.toggle('on', k === i));
+      a.addEventListener('pointerenter', show);
+      a.addEventListener('focus', show);
+    });
+  }
+  if (C.menu.now) q('.menu-meta').prepend(el('p', 'mono menu-now', C.menu.now));
+}
 const here = location.pathname.split('/').pop() || 'index.html';
 for (const a of qa('.nav-link, .menu-link')) {
   const u = new URL(a.href, location.href);
@@ -128,6 +154,34 @@ for (const a of qa('.nav-link, .menu-link')) {
 // ---------------- page structure from content ----------------
 // Each work: title, year, note, optional image (and image2, imageAlt), optional light mood, optional climber figure,
 // and any fields of its own ("venue", "label", ...) that the content strings use as {key}.
+// Photo grade (art.photoGrade): "duotone" maps every photo to the palette (shadows to ground, highlights to bone),
+// so the brand accent stays the only colour on the page and colour returns only where the visitor looks (hover).
+const GRADE = (C.art && C.art.photoGrade) || 'duotone';
+if (GRADE === 'duotone') html.classList.add('grade-duo');
+
+// The house gesture on an image: the photo clips open while a brand block retracts off it (as on headings).
+function revealFigure(fig, img, block, {start = WIPE.start} = {}) {
+  if (RM) return;
+  const tl = gsap.timeline({paused: !CAPTURE})
+    .fromTo(img, {clipPath: 'inset(0 100% 0 0)', scale: 1.08}, {clipPath: 'inset(0 0% 0 0)', scale: 1, duration: WIPE.line * 1.5, ease: WIPE.lineEase}, 0)
+    .fromTo(block, {scaleX: 1}, {scaleX: 0, duration: WIPE.block * 1.5, ease: WIPE.blockEase}, WIPE.blockDelay);
+  if (CAPTURE) ScrollTrigger.create({trigger: fig, start: `top ${start * 100}%`, end: `top ${WIPE.captureEnd * 100}%`, scrub: true, animation: tl});
+  else ScrollTrigger.create({trigger: fig, start: `top ${start * 100}%`, once: true, onEnter: () => afterReveal.then(() => tl.play())});
+}
+function figure(cls, src, alt, focus) {
+  const fig = el('figure', `${cls} graded`);
+  const img = el('img');
+  img.src = src;
+  img.alt = alt || '';
+  img.decoding = 'async';
+  if (focus) img.style.objectPosition = focus;
+  const block = el('span', 'fig-block');
+  block.setAttribute('aria-hidden', 'true');
+  fig.append(img, block);
+  imageLoads.push(img.decode().catch(() => console.error(`content.json: image not found: ${src}`)));
+  return {fig, img, block};
+}
+
 const works = (C.works || []).map((w, i) => ({seed: 11 + i * 13, ...w, id: w.id || `work-${i + 1}`}));
 const artJobs = []; // [canvasA, canvasB, work]
 const imageLoads = []; // images decode under the brand screen, like the GL and the fonts
@@ -136,8 +190,10 @@ function media(parent, w, label) {
     const a = el('img', 'card-img card-a');
     a.src = w.image;
     a.alt = w.imageAlt || w.title;
-    // The hover layer: a second photo if given, otherwise the same photo as a duotone in the brand colours.
-    const b = el('div', `card-img card-b${w.image2 ? '' : ' duo'}`);
+    // The hover layer: a second photo if given; otherwise, under the duotone grade, the same photo in its own colour
+    // (the day as it looked), and without the grade, the photo as an accent duotone.
+    if (GRADE === 'duotone') parent.classList.add('graded');
+    const b = el('div', `card-img card-b${w.image2 || GRADE === 'duotone' ? '' : ' duo'}`);
     b.setAttribute('aria-hidden', 'true');
     const bi = el('img');
     bi.src = w.image2 || w.image;
@@ -168,23 +224,9 @@ if (PAGE === 'home') {
   const A = C.home.about;
   // Optional portrait (home.about.image): the person, revealed by the house gesture (a brand block retracting).
   if (A.image) {
-    const fig = el('figure', 'about-portrait');
-    const img = el('img');
-    img.src = A.image;
-    img.alt = A.imageAlt || '';
-    img.decoding = 'async';
-    if (A.imageFocus) img.style.objectPosition = A.imageFocus;
-    const block = el('span', 'about-portrait-block');
-    block.setAttribute('aria-hidden', 'true');
-    fig.append(img, block);
-    q('.about-head').append(fig);
-    if (!RM) {
-      const tl = gsap.timeline({paused: !CAPTURE})
-        .fromTo(img, {clipPath: 'inset(0 100% 0 0)', scale: 1.08}, {clipPath: 'inset(0 0% 0 0)', scale: 1, duration: WIPE.line * 1.5, ease: WIPE.lineEase}, 0)
-        .fromTo(block, {scaleX: 1}, {scaleX: 0, duration: WIPE.block * 1.5, ease: WIPE.blockEase}, WIPE.blockDelay);
-      if (CAPTURE) ScrollTrigger.create({trigger: fig, start: `top ${WIPE.start * 100}%`, end: `top ${WIPE.captureEnd * 100}%`, scrub: true, animation: tl});
-      else ScrollTrigger.create({trigger: fig, start: `top ${WIPE.start * 100}%`, once: true, onEnter: () => afterReveal.then(() => tl.play())});
-    }
+    const p = figure('about-portrait', A.image, A.imageAlt, A.imageFocus);
+    q('.about-head').append(p.fig);
+    revealFigure(p.fig, p.img, p.block);
   }
   q('.facts').style.setProperty('--n', A.facts.length);
   for (const f of A.facts) {
@@ -235,6 +277,17 @@ if (PAGE === 'home') {
 }
 
 if (PAGE === 'works') {
+  // Lead image (worksPage.lead: a work id; default the first work with a photo), beside the heading.
+  const lead = works.find((w) => w.id === WP.lead && w.image) || works.find((w) => w.image);
+  if (lead) {
+    const p = figure('index-lead', lead.image, lead.imageAlt || lead.title, lead.imageFocus);
+    const cap = el('figcaption', 'mono index-lead-cap');
+    cap.append(el('span', '', fill(WP.leadCaption?.[0] || '{title}', lead)), el('span', '', fill(WP.leadCaption?.[1] || '{year}', lead)));
+    p.fig.append(cap);
+    q('.index-hero').classList.add('has-lead');
+    q('.index-hero').append(p.fig);
+    revealFigure(p.fig, p.img, p.block, {start: 1.0});
+  }
   // Columns: number, image, title, then one per worksPage.fields entry ({label, value, style: accent | text | mono}).
   const fields = WP.fields || [{label: '', value: '{year}', style: 'mono'}];
   const width = {accent: 'minmax(84px, max-content)', mono: 'minmax(60px, max-content)', text: 'minmax(0, 1fr)'};

@@ -105,7 +105,29 @@ html.lenis, html.lenis body { height: auto; }
   transition: color var(--dur-card) var(--house); }
 .menu-link:hover .ml-in, .menu-link:focus-visible .ml-in { color: var(--accent); }
 .menu-meta { display: flex; justify-content: space-between; gap: 20px; color: var(--muted); }
+.menu-now { color: var(--bone); }
+.menu-panel.has-preview { display: grid; grid-template-columns: minmax(0, 1fr) min(28vw, 400px); grid-template-rows: 1fr auto; column-gap: 6vw; }
+.menu-panel.has-preview .menu-links { grid-column: 1; align-self: center; }
+.menu-panel.has-preview .menu-meta { grid-column: 1 / -1; }
+.menu-preview { grid-column: 2; grid-row: 1; align-self: center; position: relative; aspect-ratio: 4 / 5; overflow: hidden; border-radius: 6px; }
+.menu-preview > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 1;
+  clip-path: inset(0 100% 0 0); transition: clip-path var(--dur-card) var(--house); }
+.menu-preview > img.on { z-index: 2; clip-path: inset(0 0 0 0); }
+.rm .menu-preview > img { transition: none; }
 .menu-email:hover { color: var(--bone); }
+
+/* ---------- photo grade: the archive ----------
+   Every photo maps to the palette: grey, then shadows lift to the ground colour (lighten) and highlights sink to
+   bone (multiply). The accent stays the only colour on the page; colour returns only on hover (.card-b). */
+.graded { position: relative; isolation: isolate; }
+.graded > img, .graded .card-a { filter: grayscale(1) contrast(1.14) brightness(1.03); }
+.graded::before, .graded::after { content: ''; position: absolute; inset: 0; z-index: 5; pointer-events: none; }
+.graded::before { background: var(--bone); mix-blend-mode: multiply; }
+.graded::after { background: var(--ground); mix-blend-mode: lighten; }
+.graded .card-b { z-index: 6; }
+.graded .card-overlay { z-index: 7; }
+.fig-block { position: absolute; inset: 0; z-index: 6; background: var(--accent); transform-origin: 100% 50%; transform: scaleX(0); }
+.rm .fig-block { display: none; }
 
 /* ---------- the brand threshold ---------- */
 .threshold { position: fixed; inset: 0; z-index: 1000; visibility: hidden; pointer-events: none; }
@@ -139,9 +161,7 @@ html.th-on .threshold, .threshold.is-on { visibility: visible; pointer-events: a
 .about-grid { position: relative; width: 100%; display: grid; grid-template-columns: minmax(0, 6fr) minmax(0, 5fr); gap: 6vw; align-items: end; }
 .about-lede { max-width: 36ch; }
 .about-portrait { position: relative; margin-top: clamp(22px, 3svh, 40px); width: min(26vw, 380px); aspect-ratio: 4 / 5; overflow: hidden; border-radius: 6px; }
-.about-portrait img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.about-portrait-block { position: absolute; inset: 0; background: var(--accent); transform-origin: 100% 50%; }
-.rm .about-portrait-block { display: none; }
+.about-portrait > img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .facts { margin-top: 40px; padding-top: 18px; border-top: 1px solid var(--rule); display: grid; grid-template-columns: repeat(var(--n, 3), minmax(0, 1fr)); gap: 18px 24px; }
 .facts dt { color: var(--muted); }
 .facts dd { margin-top: 8px; font-size: 15px; font-weight: 600; line-height: 1.3; letter-spacing: -0.01em; }
@@ -216,6 +236,13 @@ html.th-on .threshold, .threshold.is-on { visibility: visible; pointer-events: a
 .index-topo { inset: 0; width: 100%; height: 100%; opacity: 0.9; }
 .index-title { max-width: 9ch; margin-top: 24px; font-weight: 800; font-size: clamp(56px, 10.6vw, 196px); line-height: 0.86; letter-spacing: -0.052em; }
 .index-hero .lede { margin-top: 30px; }
+.index-hero.has-lead { display: grid; grid-template-columns: minmax(0, 1fr) min(34vw, 520px); grid-template-rows: 1fr auto auto auto; column-gap: 5vw; align-content: end; }
+.index-hero.has-lead > .eyebrow { grid-column: 1; grid-row: 2; }
+.index-hero.has-lead > .index-title { grid-column: 1; grid-row: 3; }
+.index-hero.has-lead > .lede { grid-column: 1; grid-row: 4; }
+.index-lead { grid-column: 2; grid-row: 1 / -1; align-self: end; margin: 0; position: relative; aspect-ratio: 4 / 5; overflow: hidden; border-radius: 6px; }
+.index-lead > img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.index-lead-cap { position: absolute; z-index: 7; left: 14px; right: 14px; bottom: 12px; display: flex; justify-content: space-between; color: var(--bone); }
 .index-list { padding: 4svh var(--pad) 10svh; --cols: 84px minmax(0, 1fr) 60px; } /* --cols: set from worksPage.fields */
 .index-cols, .row { display: grid; grid-template-columns: 52px 136px minmax(0, 1.7fr) var(--cols); gap: 0 24px; align-items: center; }
 .index-cols { padding-bottom: 14px; border-bottom: 1px solid var(--rule); color: var(--muted); }
@@ -262,6 +289,11 @@ html.th-on .threshold, .threshold.is-on { visibility: visible; pointer-events: a
   .row-sub { display: flex; }
   .row-note { font-size: 14px; }
   .menu-panel { min-height: 100svh; }
+  .menu-preview { display: none; }
+  .menu-panel.has-preview { grid-template-columns: 1fr; }
+  .index-hero.has-lead { grid-template-columns: 1fr; grid-template-rows: auto; }
+  .index-hero.has-lead > * { grid-column: 1 !important; grid-row: auto !important; }
+  .index-lead { width: 100%; aspect-ratio: 4 / 3; margin-bottom: 26px; order: -1; }
 }
 
 /* ---------- reduced motion: same content, no travel ---------- */
