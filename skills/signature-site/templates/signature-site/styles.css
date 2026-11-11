@@ -44,12 +44,12 @@ html.lenis, html.lenis body { height: auto; }
 .on-light .eyebrow { color: color-mix(in srgb, var(--ground) 72%, var(--bone)); }
 .on-light .lede { color: color-mix(in srgb, var(--ground) 84%, var(--bone)); }
 
-/* The highlight wipe: lines split by measured layout; the clip opens, the block retracts. Defaults are the end state. */
-.wl { display: block; }
-.wl-in { position: relative; display: inline-block; }
-.wl-block { position: absolute; left: -0.05em; right: -0.05em; top: 0.04em; bottom: 0; background: var(--wipe, var(--accent));
-  transform-origin: 100% 50%; transform: scaleX(0); pointer-events: none; }
-.eyebrow .wl-block, .mono .wl-block { top: -0.05em; bottom: -0.05em; }
+/* The highlight wipe (GSAP SplitText lines). The block is each line's ::after, sized past the line box to the font's
+   full ascent and descent so i-dots, accents and descenders sit inside it. --wb is 0 at rest (the end state). */
+.wl { display: block; width: fit-content; position: relative; }
+.wl::after { content: ''; position: absolute; left: -0.06em; right: -0.06em; top: -0.16em; bottom: -0.22em;
+  background: var(--wipe, var(--accent)); transform-origin: 100% 50%; transform: scaleX(var(--wb, 0)); pointer-events: none; }
+[data-wipe="clip"] .wl::after { display: none; }
 [data-wipe="ink"] { --wipe: currentColor; }
 
 /* ---------- buttons: letters roll up one line ---------- */
@@ -128,7 +128,7 @@ html.th-on .threshold, .threshold.is-on { visibility: visible; pointer-events: a
 .hero-coords { color: var(--muted); }
 .hero-name { position: absolute; z-index: 2; left: var(--pad); right: var(--pad); bottom: max(20px, 4svh); font-weight: 800; font-size: clamp(58px, 15.8vw, 290px);
   line-height: 0.84; letter-spacing: -0.055em; word-spacing: 0.1em; text-transform: uppercase; pointer-events: none; }
-.hero-name .wl-block { top: 0.1em; bottom: 0.02em; }
+.hero-name .wl::after { top: -0.04em; bottom: -0.06em; } /* caps only: no ascenders above the cap height */
 
 /* ---------- 2. about (sticky, read hold) ---------- */
 .about { position: relative; height: 150svh; }
