@@ -50,6 +50,9 @@ html.lenis, html.lenis body { height: auto; }
 .wl::after { content: ''; position: absolute; left: -0.06em; right: -0.06em; top: -0.16em; bottom: -0.22em;
   background: var(--wipe, var(--accent)); transform-origin: 100% 50%; transform: scaleX(var(--wb, 0)); pointer-events: none; }
 [data-wipe="clip"] .wl::after { display: none; }
+/* Display sizes: the block becomes a thin accent rule under each line (same sweep and retract, a fraction of the
+   weight), so a 150 px heading never turns into a screen-wide slab. wipe.js sets .wipe-rule above WIPE.blockMaxPx. */
+.wipe-rule .wl::after, .hero-name.wipe-rule .wl::after { top: auto; bottom: -0.1em; height: max(3px, 0.05em); }
 [data-wipe="ink"] { --wipe: currentColor; }
 
 /* ---------- buttons: letters roll up one line ---------- */
@@ -94,7 +97,9 @@ html.lenis, html.lenis body { height: auto; }
 /* ---------- menu: a dark panel with a convex bottom edge ---------- */
 .menu { position: fixed; inset: 0; z-index: 800; }
 .menu[hidden] { display: none; }
-.menu-scrim { position: absolute; inset: 0; background: color-mix(in srgb, color-mix(in srgb, var(--ground) 45%, #000) 55%, transparent); }
+/* Dark and soft enough that whatever the curved edge crosses (a giant heading) reads as distant ground, not a sliced word. */
+.menu-scrim { position: absolute; inset: 0; background: color-mix(in srgb, color-mix(in srgb, var(--ground) 45%, #000) 72%, transparent);
+  -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); }
 .menu-panel { position: absolute; top: 0; left: 0; right: 0; min-height: min(100svh, max(560px, 68svh)); display: flex; flex-direction: column;
   justify-content: space-between; gap: 6svh; padding: calc(var(--nav-h) + 6svh) var(--pad) 5svh; background: var(--raise); color: var(--bone); }
 .menu-curve { position: absolute; left: 0; top: calc(100% - 1px); width: 100%; height: clamp(44px, 10svh, 120px); fill: var(--raise); }
@@ -126,7 +131,8 @@ html.lenis, html.lenis body { height: auto; }
 .graded::after { background: var(--ground); mix-blend-mode: lighten; }
 .graded .card-b { z-index: 6; }
 .graded .card-overlay { z-index: 7; }
-.fig-block { position: absolute; inset: 0; z-index: 6; background: var(--accent); transform-origin: 100% 50%; transform: scaleX(0); }
+/* A photo is large: like a display heading, its wipe is a thin accent rule along the bottom, not a full slab. */
+.fig-block { position: absolute; left: 0; right: 0; bottom: 0; height: 4px; z-index: 6; background: var(--accent); transform-origin: 100% 50%; transform: scaleX(0); }
 .rm .fig-block { display: none; }
 
 /* ---------- the brand threshold ---------- */
@@ -186,7 +192,8 @@ html.th-on .threshold, .threshold.is-on { visibility: visible; pointer-events: a
 .gallery { position: relative; --g-ink: var(--bone); --g-sub: var(--muted); }
 .gallery-sticky { transition: color 0.25s var(--house); position: sticky; top: 0; height: 100svh; overflow: hidden; display: flex; flex-direction: column; justify-content: center;
   gap: clamp(20px, 3.4svh, 40px); padding: calc(var(--nav-h) + 1svh) 0 3svh; color: var(--g-ink); }
-.gallery-bg { position: absolute; inset: 0; background: var(--bone); opacity: 0; }
+.gallery-bg { position: absolute; inset: 0; background: var(--bone); clip-path: inset(0 0 100% 0); }
+.gallery-head, .gallery-rail { color: var(--g-ink); }
 .gallery-head { position: relative; padding: 0 var(--pad); display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; }
 .gallery-head .eyebrow { color: var(--g-sub); }
 .gallery-title { margin-top: 14px; font-size: clamp(44px, 6vw, 104px); }
@@ -289,6 +296,7 @@ html.th-on .threshold, .threshold.is-on { visibility: visible; pointer-events: a
   .row-sub { display: flex; }
   .row-note { font-size: 14px; }
   .menu-panel { min-height: 100svh; }
+  .menu-meta { flex-direction: column; gap: 8px; } /* three columns at 390 px wrap one word per line */
   .menu-preview { display: none; }
   .menu-panel.has-preview { grid-template-columns: 1fr; }
   .index-hero.has-lead { grid-template-columns: 1fr; grid-template-rows: auto; }
@@ -303,7 +311,7 @@ html.th-on .threshold, .threshold.is-on { visibility: visible; pointer-events: a
 .rm .about-sticky { height: auto; min-height: 100svh; }
 .rm .gallery { height: auto !important; --g-ink: var(--ground); --g-sub: color-mix(in srgb, var(--ground) 72%, var(--bone)); }
 .rm .gallery-sticky { height: auto; padding: 14svh 0 10svh; }
-.rm .gallery-bg { opacity: 1; }
+.rm .gallery-bg { clip-path: none; }
 .rm .gallery-progress { display: none; }
 .rm .gallery-rail { width: auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr)); gap: 40px 20px; transform: none !important; }
 .rm .card { width: auto; }

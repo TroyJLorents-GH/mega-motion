@@ -30,12 +30,11 @@ export const WIPE = {
   start: 0.9, // starts when the element's top reaches 90% of the viewport; plays once
   line: 0.6,
   lineEase: 'power3.out',
-  block: 0.6,
-  blockDelay: 0.3,
+  block: 0.35, // the reference retracts over 0.6 s after 0.3 s; on large type that reads as a slab parked on the
+  blockDelay: 0.1, // words, so the block leaves sooner and faster: the whole wipe is ~0.6 s, not ~0.9 s
   blockEase: 'power3.inOut',
+  blockMaxPx: 28, // above this font size the block is a thin accent rule under the line (styles.css .wipe-rule)
   lineStagger: 0.08,
-  leadIntoMask: 0.18, // headings start wiping this long before the threshold hole finishes: the mask lands on a heading mid-wipe, never on an empty page
-  foldSpeed: 1.7, // headings already on screen when a threshold opens: the mask was their reveal, so the wipe is a quick echo
   queueGap: 0.07, // wipes that start together play in reading order, this far apart
   captureEnd: 0.62, // ?capture: scrubbed from top 90% to top 62%, so a scroll position is one frame
 };
@@ -52,8 +51,7 @@ export const HERO = {
   follow: 0.03, // exponential follow per 60 fps frame (50% at ~380 ms)
   tilt: [0.55, 0.32], // follow rotation in radians for a pointer at the edge (y axis, x axis)
   spin: 0.07, // idle turn, rad/s
-  trailFade: 0.6, // a painted stroke fades out over 600 ms...
-  trailFloor: 0.55, // ...down to this, so the last path stays painted and the object never rests as a bare wireframe
+  trailFade: 0.6, // a painted stroke fades out over 600 ms
   brush: 0.13, // brush radius, fraction of the canvas height
   sweep: 1.7, // the one autonomous stroke when no pointer has moved, seconds
   dpr: {desktop: 1.25, phone: 2},
@@ -61,9 +59,8 @@ export const HERO = {
 
 // The 1:1 horizontal gallery.
 export const GALLERY = {
-  colorEase: 'power2.out', // ground to bone...
-  colorSpan: 0.2, // ...inside the first 20% of the pin, so no caption is read on mid-grey
-  textFlip: [0.42, 0.5], // the text colour crosses over inside this part of the colour shift
+  colorEase: 'power2.out', // the bone ground comes down over the dark one as a hard edge...
+  colorSpan: 0.2, // ...inside the first 20% of the pin; text flips colour as the edge passes it
 };
 
 export const UI = {

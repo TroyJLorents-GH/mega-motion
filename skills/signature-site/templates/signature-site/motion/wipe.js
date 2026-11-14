@@ -2,9 +2,12 @@
 // GSAP SplitText splits each element into its real lines (and re-splits when fonts load or the width changes,
 // autoSplit). Each line clips open left to right, then a block of brand colour over it retracts and leaves the words.
 // The block is the line's ::after, sized to the font's full ascent and descent (styles.css), so no dot, accent or
-// descender ever shows outside it. data-wipe="ink" uses the text colour for the block; data-wipe="clip" has no block.
-//   live:     starts when the element's top reaches WIPE.start of the viewport, plays once, after the intro reveal;
-//             wipes that start together play in reading order, WIPE.queueGap apart
+// descender ever shows outside it. Above WIPE.blockMaxPx (display headings) the block is a thin accent rule under
+// the line instead (.wipe-rule): a full-height block on a 150 px heading reads as a slab, not an accent.
+// data-wipe="ink" uses the text colour for the block; data-wipe="clip" has no block; data-wipe="block" forces it.
+//   live:     anything on screen when the brand threshold opens is already finished (the mask is its reveal);
+//             below the fold, starts when the element's top reaches WIPE.start, plays once; wipes that start
+//             together play in reading order, WIPE.queueGap apart; one already scrolled past just shows finished
 //   capture:  scrubbed by scroll over the same entry, so a scroll position is always one frame
 //   still:    reduced motion; nothing is split and nothing moves
 import {gsap} from 'gsap';
@@ -19,6 +22,7 @@ const OPEN = 'inset(-0.32em -0.08em -0.36em -0.08em)';
 
 export function createWipes(els, {W, mode, afterReveal}) {
   let nextFree = 0;
+  let arriving = true; // true while the first splits run, before the threshold opens
   const recs = els.map((el) => ({el, played: false, tl: null, st: null, split: null}));
   if (mode === 'still') return {settleAboveFold() {}};
 
@@ -37,6 +41,8 @@ export function createWipes(els, {W, mode, afterReveal}) {
     rec.st?.kill();
     rec.st = null;
     const block = rec.el.dataset.wipe !== 'clip';
+    const big = rec.el.dataset.wipe !== 'block' && parseFloat(getComputedStyle(rec.el).fontSize) > W.blockMaxPx;
+    rec.el.classList.toggle('wipe-rule', big);
     const tl = gsap.timeline({paused: true});
     lines.forEach((line, i) => {
       const at = i * W.lineStagger;
@@ -51,18 +57,21 @@ export function createWipes(els, {W, mode, afterReveal}) {
       rec.st = ScrollTrigger.create({...a, end: b.start, scrub: true, animation: tl});
       return tl;
     }
+    // On screen when the threshold opens: the brand mask is its reveal, so it shows finished (no second gesture
+    // under the first).
+    if (arriving && rec.el.getBoundingClientRect().top < innerHeight * W.start) rec.played = true;
     if (rec.played) {
       tl.progress(1);
       return tl;
     }
-    // Already on screen when the threshold opens: the mask was its reveal, so the wipe is a quicker echo.
-    if (rec.el.getBoundingClientRect().top < innerHeight * W.start) tl.timeScale(W.foldSpeed);
+    const past = () => rec.el.getBoundingClientRect().bottom < 0;
     rec.st = ScrollTrigger.create({...a, end: 'max', once: true, onEnter: () => afterReveal.then(() => {
       rec.played = true;
+      if (past()) return tl.progress(1); // a fast scroll jumped over it: no queue, no late wipe off screen
       const now = performance.now() / 1000;
       const wait = Math.max(0, nextFree - now);
-      nextFree = now + wait + (block ? W.queueGap : W.queueGap * 0.5);
-      gsap.delayedCall(wait, () => tl.play());
+      nextFree = now + wait + W.queueGap;
+      gsap.delayedCall(wait, () => (past() ? tl.progress(1) : tl.play()));
     })});
     return tl;
   }
@@ -76,6 +85,7 @@ export function createWipes(els, {W, mode, afterReveal}) {
       onSplit: (self) => build(rec, self.lines),
     });
   }
+  arriving = false;
 
   // Capture: anything already inside the viewport at the top of the page shows complete, like the live page after
   // its intro, instead of a half-wiped first frame.

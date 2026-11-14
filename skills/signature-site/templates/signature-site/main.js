@@ -119,10 +119,12 @@ C.menu.links.forEach((l, i) => {
   li.append(a);
   q('.menu-links').append(li);
 });
-// Menu preview: each link shows a photograph (menu.links[].image, else the About portrait and the works' photos in
-// turn). Hover or focus swaps it with the house clip. No photos anywhere: no preview, the links take the panel.
+// Menu preview: each link shows a photograph (menu.links[].image, else the works' photos in turn; the About portrait
+// only when no work has one, so the menu does not repeat a photo the home page already leads with). Hover or focus
+// swaps it with the house clip. No photos anywhere: no preview, the links take the panel.
 {
-  const pool = [C.home?.about?.image, ...(C.works || []).map((w) => w.image)].filter(Boolean);
+  const workImgs = (C.works || []).map((w) => w.image).filter(Boolean);
+  const pool = workImgs.length ? workImgs : [C.home?.about?.image].filter(Boolean);
   if (pool.length) {
     const box = el('div', 'menu-preview graded');
     box.setAttribute('aria-hidden', 'true');
@@ -166,6 +168,7 @@ function revealFigure(fig, img, block, {start = WIPE.start} = {}) {
     .fromTo(img, {clipPath: 'inset(0 100% 0 0)', scale: 1.08}, {clipPath: 'inset(0 0% 0 0)', scale: 1, duration: WIPE.line * 1.5, ease: WIPE.lineEase}, 0)
     .fromTo(block, {scaleX: 1}, {scaleX: 0, duration: WIPE.block * 1.5, ease: WIPE.blockEase}, WIPE.blockDelay);
   if (CAPTURE) ScrollTrigger.create({trigger: fig, start: `top ${start * 100}%`, end: `top ${WIPE.captureEnd * 100}%`, scrub: true, animation: tl});
+  else if (!window.__ready && fig.getBoundingClientRect().top < innerHeight * start) tl.progress(1); // on the first screen: the mask reveals it
   else ScrollTrigger.create({trigger: fig, start: `top ${start * 100}%`, once: true, onEnter: () => afterReveal.then(() => tl.play())});
 }
 function figure(cls, src, alt, focus) {
@@ -476,15 +479,21 @@ if (PAGE === 'home' && !RM) {
   const bar = q('.gp-bar i');
   const num = q('.gp-n');
   const n = rail.children.length;
+  const head = q('.gallery-head');
+  const sticky = q('.gallery-sticky');
   let travel = 0;
+  let headAt = 0.3; // where the bone edge has passed the heading, and the rail's captions (fractions of the screen)
+  let railAt = 0.9;
   const measure = () => {
     travel = Math.max(0, rail.scrollWidth - innerWidth);
     track.style.height = `calc(100svh + ${travel}px)`;
+    const H = sticky.offsetHeight || innerHeight;
+    headAt = Math.min(0.95, (head.offsetTop + head.offsetHeight * 0.6) / H);
+    railAt = Math.min(0.98, (rail.offsetTop + rail.offsetHeight * 0.9) / H);
   };
   measure();
   ScrollTrigger.addEventListener('refreshInit', measure);
   const colorEase = gsap.parseEase(GALLERY.colorEase);
-  const [f0, f1] = GALLERY.textFlip;
   const rgbOf = (c) => (Array.isArray(c) ? c : c.replace('#', '').match(/\w\w/g).map((x) => parseInt(x, 16)));
   const mixRgb = (a, b, t) => rgbOf(a).map((v, i) => Math.round(v + (rgbOf(b)[i] - v) * t));
   const mixHex = (a, b, t) => `rgb(${mixRgb(a, b, t).join(',')})`;
@@ -493,12 +502,15 @@ if (PAGE === 'home' && !RM) {
   let lastIdx = -1;
   const paint = (p) => {
     rail.style.transform = `translate3d(${(-p * travel).toFixed(2)}px,0,0)`;
+    // The bone ground comes down over the dark one as a hard edge (never a cross-fade: half-way between the two is
+    // a flat mid-grey screen), and each group of text changes colour as the edge passes it.
     const c = colorEase(Math.min(1, p / GALLERY.colorSpan));
-    bg.style.opacity = c.toFixed(4);
-    // Snap, never mix: a half-way text colour on a half-way background is grey on grey.
-    const t = c > (f0 + f1) / 2 ? 1 : 0;
-    track.style.setProperty('--g-ink', mixHex(P.bone, P.ground, t));
-    track.style.setProperty('--g-sub', mixHex(P.muted, subOnLight, t));
+    bg.style.clipPath = `inset(0 0 ${((1 - c) * 100).toFixed(3)}% 0)`;
+    for (const [node, at] of [[head, headAt], [rail, railAt]]) {
+      const t = c >= at ? 1 : 0;
+      node.style.setProperty('--g-ink', mixHex(P.bone, P.ground, t));
+      node.style.setProperty('--g-sub', mixHex(P.muted, subOnLight, t));
+    }
     bar.style.transform = `scaleX(${p.toFixed(4)})`;
     const idx = Math.min(n - 1, Math.round(p * (n - 1)));
     if (idx !== lastIdx) {
@@ -511,8 +523,8 @@ if (PAGE === 'home' && !RM) {
     onToggle: (s) => { if (!s.isActive) nav.style.removeProperty('--nav-bg'); },
     onUpdate: (s) => {
       const c = paint(s.progress);
-      if (s.isActive) nav.dataset.theme = c > (f0 + f1) / 2 ? 'light' : 'dark';
-      if (s.isActive) nav.style.setProperty('--nav-bg', mixHex(P.ground, P.bone, c));
+      if (s.isActive) nav.dataset.theme = c > 0.02 ? 'light' : 'dark'; // the edge starts under the nav
+      if (s.isActive) nav.style.setProperty('--nav-bg', c > 0.02 ? P.bone : P.ground);
     },
     onRefresh: (s) => paint(s.progress)});
   reads.push([q('.gallery-title'), track]);
@@ -573,12 +585,8 @@ await frame();
 window.__ready = true;
 clearTimeout(hardFailsafe);
 if (covered) {
-  // Headings above the fold start their wipe while the hole is opening (expo.in puts most of the opening at the
-  // end), so the new page is readable as the threshold finishes instead of ~0.6 s after it.
-  const dur = arriving ? THRESHOLD.reveal : THRESHOLD.introReveal;
-  const lead = setTimeout(revealed, Math.max(0, dur - WIPE.leadIntoMask) * 1000);
-  await th.reveal(dur);
-  clearTimeout(lead);
+  // The first screen is already finished under the mask (wipe.js, revealFigure): the hole opening is its one reveal.
+  await th.reveal(arriving ? THRESHOLD.reveal : THRESHOLD.introReveal);
 }
 lenis?.start();
 revealed();

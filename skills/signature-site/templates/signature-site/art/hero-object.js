@@ -61,6 +61,7 @@ uniform vec3 uGround;
 uniform float uDesat;
 uniform float uPaint;
 uniform float uLines;
+uniform float uStone;
 varying vec3 vN;
 varying vec3 vP;
 varying float vL;
@@ -79,11 +80,15 @@ void main() {
   float wrap = clamp(ndl * 0.5 + 0.5, 0.0, 1.0);
   float fres = pow(1.0 - max(dot(N, V), 0.0), 3.0);
 
-  // Survey layer: the object in the ground colour, lines in the accent, an accent rim.
+  // Survey layer: the object in the ground colour, lines in the accent, an accent rim. uStone lifts the body toward
+  // bone with a little variation over the relief (a pale stone such as limestone, read as a rock and not a
+  // wireframe globe), and quietens the lines to match.
   float c1 = iso(vL * uLines, 0.5);
   float c5 = iso(vL * uLines * 0.2, 0.9);
-  vec3 stone = uGround * (0.85 + 1.25 * wrap);
-  vec3 survey = stone + uAccent * (c1 * (0.28 + 0.6 * wrap) + c5 * 0.55) + uAccent * fres * 0.7;
+  vec3 body = mix(uGround, uBone * (0.9 + 0.14 * vH), uStone);
+  vec3 stone = body * mix(0.85 + 1.25 * wrap, 0.5 + 0.62 * wrap, uStone);
+  float ink = 1.0 - 0.45 * uStone;
+  vec3 survey = stone + uAccent * ink * (c1 * (0.28 + 0.6 * wrap) + c5 * 0.55) + uAccent * fres * 0.7 * ink;
 
   float t = texture2D(uTrail, gl_FragCoord.xy / uRes).r;
   float m = smoothstep(0.08, 0.55, max(t, uPaint));
@@ -122,7 +127,6 @@ uniform vec2 uA;
 uniform vec2 uB;
 uniform float uR;
 uniform float uFade;
-uniform float uFloor;
 uniform float uAmt;
 uniform float uAspect;
 varying vec2 vUv;
@@ -134,7 +138,7 @@ float seg(vec2 p, vec2 a, vec2 b) {
 }
 void main() {
   float p = texture2D(uPrev, vUv).r;
-  float v = max(p - uFade, min(p, uFloor));
+  float v = max(p - uFade, 0.0);
   vec2 s = vec2(uAspect, 1.0);
   float d = seg(vUv * s, uA * s, uB * s);
   v = max(v, (1.0 - smoothstep(uR * 0.2, uR, d)) * uAmt);
@@ -195,7 +199,8 @@ function finish(g, pos, aL, aH) {
 }
 
 // Displaced icosphere: amp is the low-frequency relief, flat squashes the base (rock), stretch shapes it.
-function reliefSphere(seed, {level = 6, amp = 0.3, grit = 0.05, stretch = [1, 1, 1], flat = null, lean = 0}) {
+// strata bends the survey lines over the relief, so they read as bedding planes on a stone, not latitudes.
+function reliefSphere(seed, {level = 6, amp = 0.3, grit = 0.05, stretch = [1, 1, 1], flat = null, lean = 0, strata = 0}) {
   const {verts, faces} = icosphere(level);
   const N = makeNoise(seed);
   const pos = new Float32Array(verts.length * 3);
@@ -217,6 +222,10 @@ function reliefSphere(seed, {level = 6, amp = 0.3, grit = 0.05, stretch = [1, 1,
   const g = new THREE.BufferGeometry();
   g.setIndex(new THREE.BufferAttribute(index, 1));
   finish(g, pos, 'y', hgt);
+  if (strata) {
+    const aL = g.getAttribute('aL').array;
+    for (let i = 0; i < aL.length; i++) aL[i] += strata * hgt[i];
+  }
   g.computeVertexNormals();
   return g;
 }
@@ -261,7 +270,7 @@ function ringGeometry(seed) {
 
 // Each shape: geometry, resting rotation (and its Euler order), line density, and the axis the idle turn spins.
 const SHAPES = {
-  rock: (seed) => ({geometry: reliefSphere(seed, {flat: -0.62, stretch: [1.18, 0.92, 1], lean: 0.08}), rest: [0.18, 0.7, 0.04], lines: 15}),
+  rock: (seed) => ({geometry: reliefSphere(seed, {amp: 0.4, grit: 0.08, flat: -0.5, stretch: [1.3, 0.84, 1.06], lean: 0.12, strata: 0.22}), rest: [0.18, 0.7, 0.04], lines: 13, stone: 0.5}),
   disc: () => ({geometry: discGeometry(), rest: [1.02, 0, 0.32], order: 'XZY', lines: DISC_LINES}),
   orb: (seed) => ({geometry: reliefSphere(seed, {level: 6, amp: 0.07, grit: 0.012}), rest: [0.38, 0.5, 0.22], lines: 12}),
   ring: (seed) => ({geometry: ringGeometry(seed), rest: [1.05, 0.1, 0.35], order: 'XZY', lines: 15}),
@@ -316,7 +325,7 @@ export async function createHeroObject(canvas, {palette, H, mode = 'live', phone
   const uniforms = {
     uTrail: {value: null}, uRes: {value: new THREE.Vector2(1, 1)},
     uAccent: {value: col(palette.accent)}, uBone: {value: col(palette.bone)}, uGround: {value: col(palette.ground)},
-    uDesat: {value: 0}, uPaint: {value: 0}, uLines: {value: 15},
+    uDesat: {value: 0}, uPaint: {value: 0}, uLines: {value: 15}, uStone: {value: 0},
   };
 
   let mesh;
@@ -367,6 +376,7 @@ export async function createHeroObject(canvas, {palette, H, mode = 'live', phone
   } else {
     const spec = (SHAPES[shape] || SHAPES.rock)(seed);
     uniforms.uLines.value = spec.lines;
+    uniforms.uStone.value = spec.stone || 0;
     mesh = new THREE.Mesh(spec.geometry, new THREE.ShaderMaterial({uniforms, vertexShader: VERT, fragmentShader: FRAG}));
     if (spec.order) mesh.rotation.order = spec.order;
     if (!rotation) rest = spec.rest;
@@ -377,7 +387,7 @@ export async function createHeroObject(canvas, {palette, H, mode = 'live', phone
   scene.add(pivot);
 
   const tu = {uPrev: {value: null}, uA: {value: new THREE.Vector2()}, uB: {value: new THREE.Vector2()}, uR: {value: H.brush},
-    uFade: {value: 0}, uFloor: {value: H.trailFloor ?? 0}, uAmt: {value: 0}, uAspect: {value: 1}};
+    uFade: {value: 0}, uAmt: {value: 0}, uAspect: {value: 1}};
   const tScene = new THREE.Scene();
   tScene.add(new THREE.Mesh(new THREE.PlaneGeometry(2, 2), new THREE.ShaderMaterial({uniforms: tu, vertexShader: TRAIL_VERT, fragmentShader: TRAIL_FRAG, depthTest: false, depthWrite: false})));
   const tCam = new THREE.Camera();
