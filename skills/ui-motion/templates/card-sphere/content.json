@@ -1,0 +1,44 @@
+{
+  "title": "Collection",
+  "hint": "Drag to spin. Arrow keys step between cards.",
+  "colors": {"ground": "#09120f", "ink": "#eef3ef", "muted": "#8a9a93", "focus": "#9fdcc5"},
+  "sphere": {
+    "diameter": 0.4,
+    "maxDiameterPx": 640,
+    "phoneDiameter": 0.78,
+    "cardWidth": 0.25,
+    "cardAspect": 0.7,
+    "radius": 0.045,
+    "perspective": 3
+  },
+  "motion": {
+    "momentumTau": 0.8,
+    "snapSpeed": 0.7,
+    "settleTau": 0.16,
+    "dragTurnsPerDiameter": 0.5
+  },
+  "cards": [
+    {"title": "Coral", "bg": "#f4a7a1", "fg": "#c2413b"},
+    {"title": "Lemon", "bg": "#f7d774", "fg": "#3b5bd6"},
+    {"title": "Lilac", "bg": "#b9a7f2", "fg": "#f2c14b"},
+    {"title": "Mint", "bg": "#9fdcc5", "fg": "#c23a52"},
+    {"title": "Apricot", "bg": "#ffc49b", "fg": "#7a2e7f"},
+    {"title": "Sky", "bg": "#a7d7f5", "fg": "#e8892c"},
+    {"title": "Rose", "bg": "#f6b8d1", "fg": "#2f6b4f"},
+    {"title": "Lime", "bg": "#d9e88f", "fg": "#5b3fa8"},
+    {"title": "Sand", "bg": "#c7b8a6", "fg": "#d6453d"},
+    {"title": "Lagoon", "bg": "#8fd0d4", "fg": "#f6e05e"},
+    {"title": "Peach", "bg": "#ffb59a", "fg": "#2c4a8a"},
+    {"title": "Fern", "bg": "#b8dca2", "fg": "#8a3b6e"},
+    {"title": "Iris", "bg": "#a9b6f0", "fg": "#f08a4b"},
+    {"title": "Blush", "bg": "#f3c1c6", "fg": "#3d7a6a"},
+    {"title": "Butter", "bg": "#f9e3a3", "fg": "#c2413b"},
+    {"title": "Seafoam", "bg": "#a6e3d0", "fg": "#5b3fa8"},
+    {"title": "Clay", "bg": "#e2a98f", "fg": "#2f4f6b"},
+    {"title": "Powder", "bg": "#c4d8f2", "fg": "#d6453d"},
+    {"title": "Orchid", "bg": "#d9b3e6", "fg": "#2f6b4f"},
+    {"title": "Pistachio", "bg": "#cfe3b4", "fg": "#c23a52"},
+    {"title": "Melon", "bg": "#fbc7a4", "fg": "#3b5bd6"},
+    {"title": "Glacier", "bg": "#b3e0ec", "fg": "#e8892c"}
+  ]
+}

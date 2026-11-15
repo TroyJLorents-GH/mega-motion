@@ -23,7 +23,9 @@ node <plugin>/shared/web-studio/new_page.mjs <folder> --template ui-motion/setti
 cd <folder> && npm install
 ```
 
-Lift components from `kit/` into the user's app (plain JS, or wrap them in React as `TEMPLATE.md` shows), or edit `content.json` for the demo. `node studio/web.mjs check` measures feedback within 100 ms per interaction, survival of five fast repeats, and reduced motion; `shots` and `film` record the tour (`tour.js`). Read `<plugin>/shared/web-studio/README.md` for the page contract.
+Lift components from `kit/` into the user's app (plain JS, or wrap them in React as `TEMPLATE.md` shows), or edit `content.json` for the demo.
+
+For a draggable 3D gallery (cards spread over a sphere, thrown with momentum, settling on a front card), use `--template ui-motion/card-sphere`: one dependency-free `sphere.js`, images or drawn cards from `content.json`, arrow-key stepping and a reduced-motion path that jumps instead of spinning. `node studio/web.mjs check` measures feedback within 100 ms per interaction, survival of five fast repeats, and reduced motion; `shots` and `film` record the tour (`tour.js`). Read `<plugin>/shared/web-studio/README.md` for the page contract.
 
 ## Red flags
 

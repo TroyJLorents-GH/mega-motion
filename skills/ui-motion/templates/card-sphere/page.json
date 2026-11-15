@@ -1,0 +1,20 @@
+{
+ "entry": "index.html",
+ "kind": "interface",
+ "readable": "[data-read]",
+ "moments": [
+  {
+   "label": "load-settle",
+   "load": true,
+   "ms": 1600,
+   "frames": 8
+  },
+  {
+   "label": "fling-settle",
+   "url": "index.html?demo",
+   "wait": 200,
+   "ms": 3400,
+   "frames": 12
+  }
+ ]
+}

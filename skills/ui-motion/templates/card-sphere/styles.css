@@ -1,0 +1,50 @@
+:root {
+  --ground: #09120f;
+  --ink: #eef3ef;
+  --muted: #8a9a93;
+  --focus: #9fdcc5;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; background: var(--ground); color: var(--ink); }
+body {
+  font: 400 15px/1.45 "Inter Tight", system-ui, sans-serif;
+  display: grid; grid-template-rows: auto 1fr auto; min-height: 100dvh; overflow: hidden;
+}
+.head, .foot { padding: 20px 24px; text-align: center; }
+.head h1 { margin: 0; font-size: 15px; font-weight: 500; letter-spacing: 0.01em; }
+.foot { display: grid; gap: 4px; }
+.front-label { margin: 0; font-size: 20px; font-weight: 500; min-height: 1.45em; }
+.hint { margin: 0; color: var(--muted); font-size: 13px; }
+
+.sphere {
+  place-self: center; position: relative;
+  width: var(--d); height: var(--d); perspective: var(--persp);
+  touch-action: none; cursor: grab; user-select: none; -webkit-user-select: none;
+  border-radius: 50%; outline: none;
+}
+.sphere.is-dragging { cursor: grabbing; }
+.sphere:focus-visible { box-shadow: 0 0 0 2px var(--ground), 0 0 0 4px var(--focus); }
+.sphere__world { position: absolute; inset: 0; transform-style: preserve-3d; }
+.sphere__card {
+  position: absolute; left: 50%; top: 50%; margin: calc(var(--ch) / -2) 0 0 calc(var(--cw) / -2);
+  width: var(--cw); height: var(--ch); border-radius: var(--cr); overflow: hidden;
+  background: var(--bg); backface-visibility: hidden; -webkit-backface-visibility: hidden; will-change: transform;
+}
+.sphere__card img { width: 100%; height: 100%; object-fit: cover; display: block; pointer-events: none; }
+
+/* Drawn artwork for cards without an image */
+.sphere__card:not(.has-image)::before, .sphere__card:not(.has-image)::after { content: ""; position: absolute; }
+.s0:not(.has-image)::before { inset: 28% 22%; border-radius: 50%; background: var(--fg); }
+.s1:not(.has-image)::before { inset: 26% 20%; border-radius: 50%; border: calc(var(--cw) * 0.09) solid var(--fg); }
+.s2:not(.has-image)::before { left: 38%; right: 38%; top: 18%; bottom: 18%; border-radius: 999px; background: var(--fg); }
+.s3:not(.has-image)::before { inset: 0; background: repeating-linear-gradient(135deg, var(--fg) 0 9%, transparent 9% 18%); opacity: .85; }
+.s4:not(.has-image)::before { left: 30%; right: 30%; top: 22%; height: 22%; border-radius: 50%; background: var(--fg); box-shadow: 0 calc(var(--ch) * .19) 0 var(--fg), 0 calc(var(--ch) * .38) 0 var(--fg); }
+.s5:not(.has-image)::before { left: 20%; right: 20%; top: 30%; bottom: 30%; border-radius: 50% 50% 0 0 / 100% 100% 0 0; background: var(--fg); }
+.s6:not(.has-image)::before { inset: 30%; background: var(--fg); transform: rotate(45deg); border-radius: 8%; }
+.s7:not(.has-image)::before { left: 0; right: 0; top: 42%; height: 16%; background: var(--fg); }
+.s7:not(.has-image)::after { top: 0; bottom: 0; left: 42%; width: 16%; background: var(--fg); }
+
+/* Studio recordings only: the tour's touch marker */
+.tour-touch { position: fixed; left: -14px; top: -14px; width: 28px; height: 28px; border-radius: 50%;
+  background: rgba(255,255,255,.28); border: 1px solid rgba(255,255,255,.6); pointer-events: none; opacity: 0; z-index: 10; }

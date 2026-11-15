@@ -2,7 +2,7 @@
 // Create a web motion project from the mega-motion web studio and a proven template.
 //
 //   node <plugin>/shared/web-studio/new_page.mjs <folder> --template <skill>/<template>
-//   e.g. --template scroll-story/product-story, web-3d/product-hero, ui-motion/settings-panel
+//   e.g. --template scroll-story/product-story, web-3d/product-hero, ui-motion/settings-panel, ui-motion/card-sphere
 //
 // Then, in <folder>: npm install, edit content, node studio/web.mjs preview | shots | check | film.
 // Works on macOS, Linux and Windows (Node 18+). Never overwrites an existing page.json.
