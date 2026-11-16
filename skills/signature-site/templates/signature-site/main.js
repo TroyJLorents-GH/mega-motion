@@ -90,7 +90,7 @@ q('meta[name="description"]')?.setAttribute('content', C.meta.description);
 
 // The brand threshold takes over the first-paint cover right away, so the mark is breathing while the rest loads.
 const th = createThreshold(q('.threshold'), {mark: C.mark, rm: RM, T: THRESHOLD});
-if (covered) th.hold();
+if (covered) th.hold({arriving});
 
 for (const n of qa('[data-c]')) {
   const v = get(n.dataset.c);
@@ -416,6 +416,7 @@ function applyHero(p) {
   const bottom = (g.vh - g.cy - g.ch / 2) * e;
   const side = ((g.vw - g.cw) / 2) * e;
   q('.hero-frame').style.clipPath = `inset(${top.toFixed(1)}px ${side.toFixed(1)}px ${bottom.toFixed(1)}px ${side.toFixed(1)}px round ${(HERO.radius * e).toFixed(1)}px)`;
+  q('.hero-frame').style.setProperty('--hb', (1 - Math.min(1, e * 1.25)).toFixed(3));
   hero?.setProgress(e);
 }
 

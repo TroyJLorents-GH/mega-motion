@@ -13,8 +13,9 @@ export const THRESHOLD = {
   ease: 'expo.in', // accelerating in: almost nothing for the first half, most of the opening at the end
   introMinHold: 0.2, // the intro holds only for real loading: long enough to register the mark, never a fixed wait
   introReveal: 0.38, // the mark-shaped hole opens past the viewport
-  cover: 0.37, // page change: the mark slab grows from the click point until the screen is solid
-  holdMin: 0.12, // then holds while the next page is fetched (prefetched on hover, so usually already in): at least...
+  cover: 0.32, // page change: the mark slab grows from the click point until the screen is solid
+  heldWidth: 0.34, // the waiting mark, as a fraction of the viewport width (intro keeps the small mark)
+  holdMin: 0.04, // then holds while the next page is fetched (prefetched on hover, so usually already in): at least...
   holdMax: 0.9, // ...and at most (the real load time, never a fixed 1.2 s)
   reveal: 0.335, // the mirrored hole on the new page
   rmFade: 0.2, // reduced motion: the whole threshold is a 200 ms fade
@@ -36,13 +37,13 @@ export const WIPE = {
   blockMaxPx: 28, // above this font size the block is a thin accent rule under the line (styles.css .wipe-rule)
   lineStagger: 0.08,
   queueGap: 0.07, // wipes that start together play in reading order, this far apart
-  captureEnd: 0.62, // ?capture: scrubbed from top 90% to top 62%, so a scroll position is one frame
+  captureEnd: 0.78, // ?capture: scrubbed from top 90% to top 78%: only a thin band of scroll positions catches a wipe part-way
 };
 
 // The 3D hero inside its sticky 1 vh pin.
 export const HERO = {
   scrubEase: 'power1.inOut',
-  card: {desktop: [0.31, 0.38], phone: [0.74, 0.4]}, // end card as fractions of viewport width, height
+  card: {desktop: [0.42, 0.5], phone: [0.8, 0.42]}, // end card as fractions of viewport width, height
   centerY: {desktop: 0.47, phone: 0.42}, // card (and rock) centre, fraction of viewport height
   radius: 14, // card corner, px
   fill: {desktop: 0.6, phone: 0.84, card: 1.02}, // rock diameter: of min(vw, vh) at full bleed (phone: of vw); of the card

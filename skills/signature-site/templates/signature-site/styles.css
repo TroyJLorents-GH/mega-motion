@@ -146,7 +146,9 @@ html.th-on .threshold, .threshold.is-on { visibility: visible; pointer-events: a
 /* ---------- 1. hero ---------- */
 .hero { position: relative; height: 200svh; }
 .hero-sticky { position: sticky; top: 0; height: 100svh; overflow: hidden; }
-.hero-frame { position: absolute; inset: 0; clip-path: inset(0px 0px 0px 0px round 0px);
+.hero-frame { position: absolute; inset: 0; clip-path: inset(0px 0px 0px 0px round 0px); }
+/* The panel behind the rock fades out as it shrinks (--hb: 1 to 0), so it ends as an object on the page, not a lighter box. */
+.hero-frame::before { content: ''; position: absolute; inset: 0; opacity: var(--hb, 1);
   background: radial-gradient(85% 70% at 50% 46%, color-mix(in srgb, var(--raise) 92%, color-mix(in srgb, var(--bone), var(--accent)) 8%) 0%,
     var(--raise) 55%, var(--ground) 100%); }
 .hero-canvas, .hero-fallback { position: absolute; inset: 0; width: 100%; height: 100%; }

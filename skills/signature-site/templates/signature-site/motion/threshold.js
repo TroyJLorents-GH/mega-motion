@@ -2,6 +2,8 @@
 //   Intro       solid accent with the mark breathing; when the page is ready, a mark-shaped hole opens past the viewport.
 //   Page change the mark slab grows from the click point until the screen is solid accent, holds while the next page
 //               loads (at least holdMin, at most holdMax), navigates; the new page opens the mirrored hole.
+//               While it waits the mark is large (about a third of the screen) and lands with a small pop, on both the
+//               leaving and the arriving page: a wait with a 30 px mark in an empty blue frame reads as a freeze.
 // The overlay is an SVG the size of the viewport (user units = CSS px): an accent rect masked by the hole path, the
 // slab path, and the badge (the mark drawn in the ground colour while the screen waits).
 // Reduced motion: every threshold is a 200 ms fade of the same screen.
@@ -19,7 +21,8 @@ export function createThreshold(root, {mark, rm, T}) {
   const [MW, MH] = mark.viewBox;
   const s0 = () => mark.introHeight / MH;
   const html = document.documentElement;
-  const breath = {b: 0};
+  const breath = {b: 0, pop: 1};
+  let heldS = null; // page changes: the waiting mark's scale (null: the small intro mark)
   let idle = null;
   let anim = null;
   let covered = false;
@@ -40,12 +43,16 @@ export function createThreshold(root, {mark, rm, T}) {
     return best || {s: (Math.hypot(W, H) / Math.min(MW, MH)) * 6, ax: MW / 2, ay: MH / 2};
   }
 
-  const drawBadge = () => put(badge, innerWidth / 2, innerHeight / 2 - 2 * breath.b, s0() * (1 + T.idleBreath * breath.b), MW / 2, MH / 2);
-  function startIdle() {
+  const bigS = () => Math.min((innerWidth * T.heldWidth) / MW, (innerHeight * 0.45) / MH);
+  const baseS = () => (heldS ?? s0()) * (0.78 + 0.22 * breath.pop) * (1 + T.idleBreath * breath.b);
+  const drawBadge = () => put(badge, innerWidth / 2, innerHeight / 2 - 2 * breath.b, baseS(), MW / 2, MH / 2);
+  function startIdle(pop = true) {
     show(badge, true);
     breath.b = 0;
+    breath.pop = heldS && pop ? 0 : 1;
     drawBadge();
     if (rm) return;
+    if (heldS && pop) gsap.to(breath, {pop: 1, duration: 0.22, ease: 'expo.out', onUpdate: drawBadge});
     idle?.kill();
     idle = gsap.to(breath, {b: 1, duration: T.idlePeriod, ease: 'sine.inOut', yoyo: true, repeat: -1, onUpdate: drawBadge});
   }
@@ -74,13 +81,14 @@ export function createThreshold(root, {mark, rm, T}) {
       return covered;
     },
     // Take over the first-paint cover (html.th-on): solid accent, the mark waiting in the middle.
-    hold() {
+    hold({arriving = false} = {}) {
+      heldS = arriving && !rm ? bigS() : null;
       on();
       html.classList.remove('th-on');
       show(ground, true);
       show(hole, false);
       show(slab, false);
-      startIdle();
+      startIdle(false);
     },
     // Open the mark-shaped hole until it is past the viewport, then remove the overlay.
     reveal(duration) {
@@ -95,7 +103,7 @@ export function createThreshold(root, {mark, rm, T}) {
         const p = plan();
         const cx = innerWidth / 2;
         const cy = innerHeight / 2;
-        const from = {s: s0() * (1 + T.idleBreath * breath.b), y: cy - 2 * breath.b};
+        const from = {s: baseS(), y: cy - 2 * breath.b};
         show(badge, false);
         show(slab, false);
         show(ground, true);
@@ -127,6 +135,7 @@ export function createThreshold(root, {mark, rm, T}) {
         show(hole, false);
         show(badge, false);
         show(slab, true);
+        heldS = bigS();
         const st = {t: 0};
         const draw = () => put(slab, lerp(x, cx, st.t), lerp(y, cy, st.t), lerp(s0(), p.s, st.t), lerp(MW / 2, p.ax, st.t), lerp(MH / 2, p.ay, st.t));
         draw();
