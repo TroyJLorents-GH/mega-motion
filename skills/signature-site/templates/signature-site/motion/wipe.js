@@ -53,8 +53,9 @@ export function createWipes(els, {W, mode, afterReveal}) {
     rec.tl = tl;
     const a = trigger(rec.el, W.start);
     if (mode === 'capture') {
-      const b = trigger(rec.el, W.captureEnd);
-      rec.st = ScrollTrigger.create({...a, end: b.start, scrub: true, animation: tl});
+      // Deterministic and never part-way: a scroll position shows the line finished (past its start) or not begun.
+      tl.progress(0);
+      rec.st = ScrollTrigger.create({...a, end: 'max', onUpdate: (st) => tl.progress(st.progress > 0 ? 1 : 0), onRefresh: (st) => tl.progress(st.progress > 0 ? 1 : 0)});
       return tl;
     }
     // On screen when the threshold opens: the brand mask is its reveal, so it shows finished (no second gesture

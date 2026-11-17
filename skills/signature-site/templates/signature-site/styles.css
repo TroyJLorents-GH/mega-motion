@@ -73,7 +73,7 @@ html.lenis, html.lenis body { height: auto; }
   padding: 0 var(--pad); color: var(--bone); transition: color 0.5s var(--house); pointer-events: none; }
 .nav > * { pointer-events: auto; }
 /* A scrim in the page colour so body text never runs under the links. */
-.nav::before { content: ''; position: absolute; inset: 0 0 -28px 0; z-index: -1; pointer-events: none;
+.nav::before { content: ''; position: absolute; inset: 0 0 -14px 0; z-index: -1; pointer-events: none;
   background: linear-gradient(var(--nav-bg, var(--ground)) 58%, transparent); transition: opacity 0.5s var(--house); }
 .nav[data-theme="light"] { color: var(--ground); --nav-bg: var(--bone); }
 .menu-open .nav::before { opacity: 0; }
@@ -98,9 +98,9 @@ html.lenis, html.lenis body { height: auto; }
 .menu { position: fixed; inset: 0; z-index: 800; }
 .menu[hidden] { display: none; }
 /* Dark and soft enough that whatever the curved edge crosses (a giant heading) reads as distant ground, not a sliced word. */
-.menu-scrim { position: absolute; inset: 0; background: color-mix(in srgb, color-mix(in srgb, var(--ground) 45%, #000) 72%, transparent);
-  -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); }
-.menu-panel { position: absolute; top: 0; left: 0; right: 0; min-height: min(100svh, max(560px, 68svh)); display: flex; flex-direction: column;
+.menu-scrim { position: absolute; inset: 0; background: color-mix(in srgb, var(--ground) 45%, #000);
+}
+.menu-panel { position: absolute; top: 0; left: 0; right: 0; min-height: calc(100svh - clamp(44px, 10svh, 120px)); display: flex; flex-direction: column;
   justify-content: space-between; gap: 6svh; padding: calc(var(--nav-h) + 6svh) var(--pad) 5svh; background: var(--raise); color: var(--bone); }
 .menu-curve { position: absolute; left: 0; top: calc(100% - 1px); width: 100%; height: clamp(44px, 10svh, 120px); fill: var(--raise); }
 .menu-link { display: flex; align-items: baseline; gap: 18px; padding: 2px 0; }
@@ -130,6 +130,8 @@ html.lenis, html.lenis body { height: auto; }
 .graded::before { background: var(--bone); mix-blend-mode: multiply; }
 .graded::after { background: var(--ground); mix-blend-mode: lighten; }
 .graded .card-b { z-index: 6; }
+/* Colour returns on hover, but held back: a full-saturation photo would be a second accent. */
+.grade-duo .card-b img { filter: saturate(0.4) contrast(1.06); }
 .graded .card-overlay { z-index: 7; }
 /* A photo is large: like a display heading, its wipe is a thin accent rule along the bottom, not a full slab. */
 .fig-block { position: absolute; left: 0; right: 0; bottom: 0; height: 4px; z-index: 6; background: var(--accent); transform-origin: 100% 50%; transform: scaleX(0); }

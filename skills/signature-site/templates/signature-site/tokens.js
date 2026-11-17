@@ -37,7 +37,6 @@ export const WIPE = {
   blockMaxPx: 28, // above this font size the block is a thin accent rule under the line (styles.css .wipe-rule)
   lineStagger: 0.08,
   queueGap: 0.07, // wipes that start together play in reading order, this far apart
-  captureEnd: 0.78, // ?capture: scrubbed from top 90% to top 78%: only a thin band of scroll positions catches a wipe part-way
 };
 
 // The 3D hero inside its sticky 1 vh pin.

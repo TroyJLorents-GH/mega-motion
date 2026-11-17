@@ -104,12 +104,12 @@ void main() {
   // Painted layer: bone, banded like a map, with accent lines on the band edges.
   float hb = vH * 6.0 + 3.0;
   float alt = mod(floor(hb), 2.0);
-  vec3 tint = mix(uBone, mix(uBone, uAccent, 0.3), alt);
+  vec3 tint = mix(uBone, mix(uBone, uAccent, 0.1), alt);
   vec3 paint = tint * (0.42 + 0.62 * wrap) + vec3(0.06) * pow(diff, 8.0);
-  paint = mix(paint, uAccent * (0.7 + 0.35 * wrap), iso(hb, 0.8) * 0.95);
+  paint = mix(paint, uAccent * (0.7 + 0.35 * wrap), iso(hb, 0.8) * 0.45);
 
   vec3 col = mix(survey, paint, m);
-  col += uAccent * glow;
+  col += uAccent * glow * 0.6;
 
   float g = dot(col, vec3(0.299, 0.587, 0.114));
   col = mix(col, vec3(g), uDesat);

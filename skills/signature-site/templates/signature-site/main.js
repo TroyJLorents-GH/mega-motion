@@ -167,7 +167,7 @@ function revealFigure(fig, img, block, {start = WIPE.start} = {}) {
   const tl = gsap.timeline({paused: !CAPTURE})
     .fromTo(img, {clipPath: 'inset(0 100% 0 0)', scale: 1.08}, {clipPath: 'inset(0 0% 0 0)', scale: 1, duration: WIPE.line * 1.5, ease: WIPE.lineEase}, 0)
     .fromTo(block, {scaleX: 1}, {scaleX: 0, duration: WIPE.block * 1.5, ease: WIPE.blockEase}, WIPE.blockDelay);
-  if (CAPTURE) ScrollTrigger.create({trigger: fig, start: `top ${start * 100}%`, end: `top ${WIPE.captureEnd * 100}%`, scrub: true, animation: tl});
+  if (CAPTURE) ScrollTrigger.create({trigger: fig, start: `top ${start * 100}%`, end: 'max', onUpdate: (st) => tl.progress(st.progress > 0 ? 1 : 0), onRefresh: (st) => tl.progress(st.progress > 0 ? 1 : 0)}); // finished or not begun, never part-way
   else if (!window.__ready && fig.getBoundingClientRect().top < innerHeight * start) tl.progress(1); // on the first screen: the mask reveals it
   else ScrollTrigger.create({trigger: fig, start: `top ${start * 100}%`, once: true, onEnter: () => afterReveal.then(() => tl.play())});
 }
@@ -418,6 +418,12 @@ function applyHero(p) {
   q('.hero-frame').style.clipPath = `inset(${top.toFixed(1)}px ${side.toFixed(1)}px ${bottom.toFixed(1)}px ${side.toFixed(1)}px round ${(HERO.radius * e).toFixed(1)}px)`;
   q('.hero-frame').style.setProperty('--hb', (1 - Math.min(1, e * 1.25)).toFixed(3));
   hero?.setProgress(e);
+}
+// After the pin ends the hero leaves upward: fade the rock out before it reaches the header, so it is never sliced.
+if (PAGE === 'home' && !RM) {
+  ScrollTrigger.create({trigger: '.hero', start: 'bottom bottom', end: 'bottom 45%', scrub: true,
+    onUpdate: (s) => (q('.hero-frame').style.opacity = (1 - s.progress).toFixed(3)),
+    onRefresh: (s) => (q('.hero-frame').style.opacity = (1 - s.progress).toFixed(3))});
 }
 
 async function setupHero() {
